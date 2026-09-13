@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {schemaGuide} from './schema-guide.mjs';
 import {buildVariants} from './mock-variants.mjs';
 import '../src/core.js';
@@ -65,4 +66,10 @@ for(const stack of ['mysql','postgresql']){
  write(path.join(out,`downloads/polesie-${stack}.zip`),ExamCore.zip(files));
 }
 write(path.join(out,'.nojekyll'),'');
+// Content versions prevent browsers from reusing scripts from an older release.
+const indexPath=path.join(out,'index.html');
+write(indexPath,fs.readFileSync(indexPath,'utf8').replace(/(src|href)="([^"?]+\.(?:js|css))"/g,(_,attr,file)=>{
+ const version=createHash('sha256').update(fs.readFileSync(path.join(out,file))).digest('hex').slice(0,12);
+ return `${attr}="${file}?v=${version}"`;
+}));
 console.log('Built site: 5 modules, 2 stacks, 8 application screenshots.');
