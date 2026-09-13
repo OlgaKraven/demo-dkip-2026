@@ -13,8 +13,23 @@ function paragraphs(text){
  const parts=normalize(text).split(/(?<=[.!?])\s+(?=[А-ЯЁ])/).filter(Boolean);
  return parts.map(p=>'<p>'+escape(p)+'</p>').join('');
 }
+function developmentRequirements(text){
+ const titles=['Требования к разработке','Название приложения','Файловая структура','Структура проекта','Макет и технические характеристики','Обратная связь с пользователем','Обработка ошибок','Оформление кода','Комментарии'];
+ const lines=String(text).split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+ const blocks=[];let current={title:'',lines:[]};
+ for(const line of lines){
+  if(titles.includes(line)){if(current.title||current.lines.length)blocks.push(current);current={title:line,lines:[]};}
+  else current.lines.push(line);
+ }
+ if(current.title||current.lines.length)blocks.push(current);
+ return '<div class="condition-text development-requirements">'+blocks.map(b=>{
+  const items=normalize(b.lines.join(' ')).split(/\s*[\uf02d•]\s*/);
+  return '<section class="condition-section">'+(b.title?'<h4>'+escape(b.title)+'</h4>':'')+paragraphs(items[0])+(items.length>1?'<ul>'+items.slice(1).map(t=>'<li>'+escape(t)+'</li>').join('')+'</ul>':'')+'</section>';
+ }).join('')+'</div>';
+}
 function format(text,id,official=false){
  let body=String(text).trim();
+ if(body.startsWith('Требования к разработке'))return developmentRequirements(body);
  if(!official)return '<div class="condition-text">'+paragraphs(body)+'</div>';
  body=body.replace(/^Модуль\s+\d+\.[^\n]*\n\s*/,'');
  const app=body.indexOf('Необходимые приложения:');

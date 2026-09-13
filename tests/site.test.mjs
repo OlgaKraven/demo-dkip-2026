@@ -57,3 +57,25 @@ test('database screenshots and C# designer routes are integrated into lessons',(
  }
  assert.match(app,/Shift\+F7/);assert.doesNotMatch(fs.readFileSync('site/course-app.js','utf8'),/gallery.html/);
 });
+test('requirements keep all source words and restore headings and bullet list',()=>{
+ const source=y.practice.tasks.find(t=>t.id==='M4').supplements[0].text;
+ const html=ExamConditions.format(source);
+ const normalize=s=>s.replace(/<[^>]*>/g,' ').replaceAll('&quot;','"').replaceAll('&#39;',"'").replaceAll('&amp;','&').replace(/[\uf02d•]/g,' ').replace(/\s+/g,' ').trim();
+ assert.equal(normalize(html),normalize(source));
+ assert.equal((html.match(/<li>/g)||[]).length,10);
+ assert.equal((html.match(/<h4>/g)||[]).length,9);
+});
+test('creation and example routes are complete and isolated for both stacks',()=>{
+ for(const m of y.modules)for(const stack of ['mysql','postgresql']){
+  const example=sandbox.EXAMPLE_LESSONS[m.id][stack];assert.ok(example.length>500);assert.doesNotMatch(example,/\{\{|data-stack-only/);
+  for(const match of example.matchAll(/(?:src|href)="([^"]+)"/g))if(!/^(#|https?:)/.test(match[1]))assert.ok(fs.existsSync('site/'+match[1].split('#')[0]));
+  assert.match(lessons[m.id][stack],/папку сдачи/);
+ }
+ assert.doesNotMatch(lessons.M4.mysql,/Введите <code>admin<\/code> и/);
+ assert.match(sandbox.EXAMPLE_LESSONS.M4.mysql,/Введите <code>admin<\/code> и/);
+ assert.equal((lessons.M2.postgresql.match(/<img[^>]*src="screenshots\/pgadmin\//g)||[]).length,8);
+ assert.doesNotMatch(lessons.M2.mysql,/screenshots\/pgadmin/);
+ assert.doesNotMatch(fs.readFileSync('site/course-app.js','utf8'),/Документы и материалы|Пять шагов к готовому проекту/);
+ assert.doesNotMatch(fs.readFileSync('site/practice.js','utf8'),/Без отправки файлов/);
+ for(const t of y.practice.tasks){assert.ok(t.hints.length>=3);assert.ok(t.hints.every(h=>h.split('\n').length===3));assert.ok(t.hints.every(h=>!h.includes('2027')));}
+});

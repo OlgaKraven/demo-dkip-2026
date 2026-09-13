@@ -12,35 +12,33 @@ const c=JSON.parse(fs.readFileSync('content/is.json','utf8'));
 c.id='demo-dkip-2026-is';c.templateVersion='1.0.0';c.years=c.years.filter(y=>y.year===2026);
 const y=c.years[0];delete y.exercise;y.status='passport';y.contentVersion='polesie-2026-1';
 y.mockVariants=buildVariants(out,ExamCore.zip,standalone);
-y.practice.tasks.find(t=>t.id==='M1').hints[1]='Отделите заказ от его строк, а продукцию — от состава.';
-y.practice.tasks.find(t=>t.id==='M3').hints[2]='Выбирайте цену материала на дату заказа и учитывайте, на какое количество продукции задана норма.';
-y.practice.tasks.find(t=>t.id==='M5').hints[1]='Укажите назначение, параметры и результаты методов своего приложения; добавьте снимки форм и порядок запуска.';
 y.completeCourse=false;
 ExamCore.validateCourse(c);
 for(const f of ['index.html','style.css','practice.css','lessons.css','core.js','conditions.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
 for(const f of ['practice','sources','screenshots','diagrams'])fs.cpSync(path.join('materials',f),path.join(out,f),{recursive:true});
 write(path.join(out,'course.js'),'globalThis.COURSE='+JSON.stringify(c)+';\n');
-const lessons={},toc={};
-for(const m of y.modules){
- const html=fs.readFileSync(`lessons/${m.id}.html`,'utf8');
- toc[m.id]=[...html.matchAll(/<h3>(.*?)<\/h3>/g)].map(m=>m[1]);
- lessons[m.id]={};
+const lessons={},toc={},examples={},exampleToc={};
+for(const [folder,compiled,headings,prefix] of [['',lessons,toc,'lesson'],['examples/',examples,exampleToc,'example']])for(const m of y.modules){
+ const html=fs.readFileSync(`lessons/${folder}${m.id}.html`,'utf8');
+ headings[m.id]=[...html.matchAll(/<h3>(.*?)<\/h3>/g)].map(m=>m[1]);
+ compiled[m.id]={};
  for(const stack of ['mysql','postgresql']){
   let i=0;
   let content=html.replace(/<div data-stack-only="(.*?)">([\s\S]*?)<\/div>/g,(_,s,t)=>s===stack?t:'')
    .replaceAll('{{schema-guide}}',schemaGuide(stack,E))
+   .replaceAll('{{requirements}}',ExamConditions.format(y.practice.tasks.find(t=>t.id==='M4').supplements[0].text))
    .replaceAll('{{stack}}',stack).replaceAll('{{stackLabel}}',stack==='mysql'?'MySQL':'PostgreSQL')
-   .replace(/<h3>/g,()=>`<h3 id="lesson-step-${++i}">`)
+   .replace(/<h3>/g,()=>`<h3 id="${prefix}-step-${++i}">`)
    .replace(/\{\{code:(.*?)\}\}/g,(_,f)=>{
     const file=f.startsWith('stack/')?f.replace('stack/',`examples/${stack}/`):f;
     const code=fs.readFileSync(file,'utf8');
     write(path.join(out,'code',file+'.txt'),code);
     return `<details class="code-source"><summary>${E(file)} · ${code.split('\n').length} строк · открыть код</summary><p><a href="code/${file}.txt" download>Скачать файл как текст</a></p><pre><code>${E(code)}</code></pre></details>`;
    });
-  lessons[m.id][stack]=content;
+  compiled[m.id][stack]=content;
  }
 }
-write(path.join(out,'lessons.js'),'globalThis.LESSONS='+JSON.stringify(lessons)+';\nglobalThis.LESSON_TOC='+JSON.stringify(toc)+';');
+write(path.join(out,'lessons.js'),'globalThis.LESSONS='+JSON.stringify(lessons)+';\nglobalThis.LESSON_TOC='+JSON.stringify(toc)+';\nglobalThis.EXAMPLE_LESSONS='+JSON.stringify(examples)+';\nglobalThis.EXAMPLE_TOC='+JSON.stringify(exampleToc)+';');
 function standalone(title,html){return `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(title)}</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="lessons.css"><main class="standalone"><p><a href="./">← Вернуться к разбору</a></p><h1>${E(title)}</h1>${html}</main></html>`;}
 write(path.join(out,'gallery.html'),'<!doctype html><html lang="ru"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./?mode=learn&module=M4"><title>Разбор приложения</title><p><a href="./?mode=learn&module=M4">Открыть разбор приложения с примерами экранов</a></p></html>');
 const sources=JSON.parse(fs.readFileSync('docs/sources.json','utf8'));
