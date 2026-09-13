@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {schemaGuide} from './schema-guide.mjs';
+import {buildVariants} from './mock-variants.mjs';
 import '../src/core.js';
 const root=path.resolve(import.meta.dirname,'..');
 process.chdir(root);
@@ -9,6 +11,10 @@ const write=(p,s)=>{fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileS
 const c=JSON.parse(fs.readFileSync('content/is.json','utf8'));
 c.id='demo-dkip-2026-is';c.templateVersion='1.0.0';c.years=c.years.filter(y=>y.year===2026);
 const y=c.years[0];delete y.exercise;y.status='passport';y.contentVersion='polesie-2026-1';
+y.mockVariants=buildVariants(out,ExamCore.zip,standalone);
+y.practice.tasks.find(t=>t.id==='M1').hints[1]='Отделите заказ от его строк, а продукцию — от состава.';
+y.practice.tasks.find(t=>t.id==='M3').hints[2]='Выбирайте цену материала на дату заказа и учитывайте, на какое количество продукции задана норма.';
+y.practice.tasks.find(t=>t.id==='M5').hints[1]='Укажите назначение, параметры и результаты методов своего приложения; добавьте снимки форм и порядок запуска.';
 y.completeCourse=false;
 ExamCore.validateCourse(c);
 for(const f of ['index.html','style.css','practice.css','lessons.css','core.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
@@ -22,6 +28,7 @@ for(const m of y.modules){
  for(const stack of ['mysql','postgresql']){
   let i=0;
   let content=html.replace(/<div data-stack-only="(.*?)">([\s\S]*?)<\/div>/g,(_,s,t)=>s===stack?t:'')
+   .replaceAll('{{schema-guide}}',schemaGuide(stack,E))
    .replaceAll('{{stack}}',stack).replaceAll('{{stackLabel}}',stack==='mysql'?'MySQL':'PostgreSQL')
    .replace(/<h3>/g,()=>`<h3 id="lesson-step-${++i}">`)
    .replace(/\{\{code:(.*?)\}\}/g,(_,f)=>{

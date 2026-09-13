@@ -31,15 +31,15 @@ def line(points,label=None):
 text(35,36,'Полесье · ER-модель · ДЭ 09.02.07-5-2026',25)
 text(35,62,'PK — первичный ключ; FK — внешний ключ. У линии: N → 1. Точка обозначает сторону 1.',14)
 boxes=[
- ('counterparty',35,100,['PK id','name, inn, address, phone','is_salesman, is_buyer']),
- ('item',445,100,['PK id; UNIQUE code','name, kind, unit']),
- ('users',855,100,['PK id; UNIQUE login','password_hash, role','failed_attempts, is_locked']),
+ ('counterparty',35,100,['PK id','name','inn','address','phone','is_salesman','is_buyer']),
+ ('item',445,100,['PK id','UNIQUE code','name','kind','unit']),
+ ('users',855,100,['PK id','UNIQUE login','password_hash','role','failed_attempts','is_locked']),
  ('price',35,390,['PK/FK item_id → item.id','PK valid_from','amount']),
- ('specification',445,390,['PK id','FK product_id → item.id (UNIQUE)','FK manufacturer_id → counterparty.id','name, output_qty']),
+ ('specification',445,390,['PK id','FK product_id → item.id (UNIQUE)','FK manufacturer_id → counterparty.id','name','output_qty']),
  ('specification_material',855,390,['PK/FK specification_id','   → specification.id','PK/FK material_id → item.id','qty']),
- ('customer_order',35,680,['PK id; UNIQUE doc_no','doc_date','FK customer_id → counterparty.id','FK executor_id → counterparty.id']),
- ('customer_order_line',445,680,['PK id','FK order_id → customer_order.id','FK product_id → item.id','qty, sale_price']),
- ('production',35,970,['PK id; UNIQUE doc_no','doc_date','FK manufacturer_id → counterparty.id']),
+ ('customer_order',35,680,['PK id','UNIQUE doc_no','doc_date','FK customer_id → counterparty.id','FK executor_id → counterparty.id']),
+ ('customer_order_line',445,680,['PK id','FK order_id → customer_order.id','FK product_id → item.id','qty','sale_price']),
+ ('production',35,970,['PK id','UNIQUE doc_no','doc_date','FK manufacturer_id → counterparty.id']),
  ('production_product',445,970,['PK/FK production_id → production.id','PK/FK product_id → item.id','qty']),
  ('production_material',855,970,['PK/FK production_id → production.id','PK/FK material_id → item.id','qty'])]
 for points in [([(180,390),(180,345),(615,345),(615,285)]), ([(615,390),(615,285)]), ([(855,490),(795,490),(785,490)]), ([(1010,390),(1010,330),(700,330),(700,285)]), ([(35,765),(15,765),(15,250),(35,250)]), ([(445,775),(375,775)]), ([(610,680),(610,640),(815,640),(815,300),(745,300),(745,285)]), ([(35,1060),(5,1060),(5,200),(35,200)]), ([(445,1060),(375,1060)]), ([(1015,970),(1015,935),(205,935),(205,970)])]:
@@ -48,7 +48,7 @@ for title,x,y,fields in boxes:
     rect(x,y,340,185,'#ffffff')
     rect(x,y,340,38,'#edf1f7')
     text(x+12,y+25,title,19)
-    for i,f in enumerate(fields):text(x+12,y+64+i*24,f,14)
+    for i,f in enumerate(fields):text(x+12,y+60+i*18,f,14)
 text(855,712,'Дополнительные связи FK',17)
 text(855,745,'Все ссылки на item и counterparty',14)
 text(855,771,'подписаны внутри таблиц.',14)
