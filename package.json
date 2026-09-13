@@ -1,0 +1,1 @@
+{"name":"demo-dkip-2026","version":"1.0.0","private":true,"description":"ДЭ 2026: специалист по информационным системам, C# WinForms + MySQL/PostgreSQL","scripts":{"build":"node scripts/build.mjs","preview":"node scripts/serve.mjs","test":"node --test tests/site.test.mjs"},"engines":{"node":">=22"}}

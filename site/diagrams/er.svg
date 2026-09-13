@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1290" viewBox="0 0 1240 1290"><rect width="100%" height="100%" fill="white"/>
+<text x="35" y="36" font-family="Arial,sans-serif" font-size="25" fill="#263244">Полесье · ER-модель · ДЭ 09.02.07-5-2026</text>
+<text x="35" y="62" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK — первичный ключ; FK — внешний ключ. У линии: N → 1. Точка обозначает сторону 1.</text>
+<polyline points="180,390 180,345 615,345 615,285" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="612" y="282" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="185" y="383" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="615,390 615,285" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="612" y="282" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="620" y="383" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="855,490 795,490 785,490" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="782" y="487" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="860" y="483" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="1010,390 1010,330 700,330 700,285" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="697" y="282" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="1015" y="383" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="35,765 15,765 15,250 35,250" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="32" y="247" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="40" y="758" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="445,775 375,775" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="372" y="772" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="450" y="768" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="610,680 610,640 815,640 815,300 745,300 745,285" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="742" y="282" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="615" y="673" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="35,1060 5,1060 5,200 35,200" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="32" y="197" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="40" y="1053" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="445,1060 375,1060" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="372" y="1057" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="450" y="1053" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<polyline points="1015,970 1015,935 205,935 205,970" fill="none" stroke="#718096" stroke-width="1.5"/>
+<rect x="202" y="967" width="6" height="6" rx="6" fill="#718096" stroke="#718096"/>
+<text x="1020" y="963" font-family="Arial,sans-serif" font-size="12" fill="#263244">N → 1</text>
+<rect x="35" y="100" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="35" y="100" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="47" y="125" font-family="Arial,sans-serif" font-size="19" fill="#263244">counterparty</text>
+<text x="47" y="164" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id</text>
+<text x="47" y="188" font-family="Arial,sans-serif" font-size="14" fill="#263244">name, inn, address, phone</text>
+<text x="47" y="212" font-family="Arial,sans-serif" font-size="14" fill="#263244">is_salesman, is_buyer</text>
+<rect x="445" y="100" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="445" y="100" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="457" y="125" font-family="Arial,sans-serif" font-size="19" fill="#263244">item</text>
+<text x="457" y="164" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id; UNIQUE code</text>
+<text x="457" y="188" font-family="Arial,sans-serif" font-size="14" fill="#263244">name, kind, unit</text>
+<rect x="855" y="100" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="855" y="100" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="867" y="125" font-family="Arial,sans-serif" font-size="19" fill="#263244">users</text>
+<text x="867" y="164" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id; UNIQUE login</text>
+<text x="867" y="188" font-family="Arial,sans-serif" font-size="14" fill="#263244">password_hash, role</text>
+<text x="867" y="212" font-family="Arial,sans-serif" font-size="14" fill="#263244">failed_attempts, is_locked</text>
+<rect x="35" y="390" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="35" y="390" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="47" y="415" font-family="Arial,sans-serif" font-size="19" fill="#263244">price</text>
+<text x="47" y="454" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK item_id → item.id</text>
+<text x="47" y="478" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK valid_from</text>
+<text x="47" y="502" font-family="Arial,sans-serif" font-size="14" fill="#263244">amount</text>
+<rect x="445" y="390" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="445" y="390" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="457" y="415" font-family="Arial,sans-serif" font-size="19" fill="#263244">specification</text>
+<text x="457" y="454" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id</text>
+<text x="457" y="478" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK product_id → item.id (UNIQUE)</text>
+<text x="457" y="502" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK manufacturer_id → counterparty.id</text>
+<text x="457" y="526" font-family="Arial,sans-serif" font-size="14" fill="#263244">name, output_qty</text>
+<rect x="855" y="390" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="855" y="390" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="867" y="415" font-family="Arial,sans-serif" font-size="19" fill="#263244">specification_material</text>
+<text x="867" y="454" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK specification_id</text>
+<text x="867" y="478" font-family="Arial,sans-serif" font-size="14" fill="#263244">   → specification.id</text>
+<text x="867" y="502" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK material_id → item.id</text>
+<text x="867" y="526" font-family="Arial,sans-serif" font-size="14" fill="#263244">qty</text>
+<rect x="35" y="680" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="35" y="680" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="47" y="705" font-family="Arial,sans-serif" font-size="19" fill="#263244">customer_order</text>
+<text x="47" y="744" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id; UNIQUE doc_no</text>
+<text x="47" y="768" font-family="Arial,sans-serif" font-size="14" fill="#263244">doc_date</text>
+<text x="47" y="792" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK customer_id → counterparty.id</text>
+<text x="47" y="816" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK executor_id → counterparty.id</text>
+<rect x="445" y="680" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="445" y="680" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="457" y="705" font-family="Arial,sans-serif" font-size="19" fill="#263244">customer_order_line</text>
+<text x="457" y="744" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id</text>
+<text x="457" y="768" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK order_id → customer_order.id</text>
+<text x="457" y="792" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK product_id → item.id</text>
+<text x="457" y="816" font-family="Arial,sans-serif" font-size="14" fill="#263244">qty, sale_price</text>
+<rect x="35" y="970" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="35" y="970" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="47" y="995" font-family="Arial,sans-serif" font-size="19" fill="#263244">production</text>
+<text x="47" y="1034" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK id; UNIQUE doc_no</text>
+<text x="47" y="1058" font-family="Arial,sans-serif" font-size="14" fill="#263244">doc_date</text>
+<text x="47" y="1082" font-family="Arial,sans-serif" font-size="14" fill="#263244">FK manufacturer_id → counterparty.id</text>
+<rect x="445" y="970" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="445" y="970" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="457" y="995" font-family="Arial,sans-serif" font-size="19" fill="#263244">production_product</text>
+<text x="457" y="1034" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK production_id → production.id</text>
+<text x="457" y="1058" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK product_id → item.id</text>
+<text x="457" y="1082" font-family="Arial,sans-serif" font-size="14" fill="#263244">qty</text>
+<rect x="855" y="970" width="340" height="185" rx="6" fill="#ffffff" stroke="#cbd2dc"/>
+<rect x="855" y="970" width="340" height="38" rx="6" fill="#edf1f7" stroke="#cbd2dc"/>
+<text x="867" y="995" font-family="Arial,sans-serif" font-size="19" fill="#263244">production_material</text>
+<text x="867" y="1034" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK production_id → production.id</text>
+<text x="867" y="1058" font-family="Arial,sans-serif" font-size="14" fill="#263244">PK/FK material_id → item.id</text>
+<text x="867" y="1082" font-family="Arial,sans-serif" font-size="14" fill="#263244">qty</text>
+<text x="855" y="712" font-family="Arial,sans-serif" font-size="17" fill="#263244">Дополнительные связи FK</text>
+<text x="855" y="745" font-family="Arial,sans-serif" font-size="14" fill="#263244">Все ссылки на item и counterparty</text>
+<text x="855" y="771" font-family="Arial,sans-serif" font-size="14" fill="#263244">подписаны внутри таблиц.</text>
+<text x="855" y="805" font-family="Arial,sans-serif" font-size="14" fill="#263244">UNIQUE product_id: один продукт</text>
+<text x="855" y="831" font-family="Arial,sans-serif" font-size="14" fill="#263244">имеет одну спецификацию.</text>
+<text x="35" y="1210" font-family="Arial,sans-serif" font-size="16" fill="#263244">Расчёт стоимости — запрос по заказу, составу и цене на дату; вычисляемую сумму не дублируем в таблице.</text>
+<text x="35" y="1238" font-family="Arial,sans-serif" font-size="15" fill="#263244">Единицы: одна базовая единица для каждой номенклатуры. output_qty — выход партии по спецификации.</text>
+<text x="35" y="1264" font-family="Arial,sans-serif" font-size="14" fill="#263244">Учебная модель. SQL: examples/mysql/Sql/01-schema.sql или examples/postgresql/Sql/01-schema.sql.</text>
+</svg>

@@ -1,0 +1,1 @@
+Server=127.0.0.1;Port=3306;Database=rassvet_demo_2026;User ID=demo_student;Password=CHANGE_ME;

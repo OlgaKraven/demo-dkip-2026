@@ -1,0 +1,10 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+ <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"/>
+ <PropertyGroup><OutputType>WinExe</OutputType><TargetFrameworkVersion>v4.8</TargetFrameworkVersion><RootNamespace>Polesie</RootNamespace><AssemblyName>Polesie.mysql</AssemblyName><OutputPath>bin\Debug\</OutputPath><LangVersion>7.3</LangVersion><AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects><GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType><DefineConstants>MYSQL</DefineConstants></PropertyGroup>
+ <ItemGroup><Reference Include="System"/><Reference Include="System.Core"/><Reference Include="System.Data"/><Reference Include="System.Drawing"/><Reference Include="System.Windows.Forms"/><Reference Include="System.Web.Extensions"/></ItemGroup>
+ <ItemGroup><Compile Include="..\shared\**\*.cs"><Link>%(RecursiveDir)%(Filename)%(Extension)</Link></Compile></ItemGroup>
+ <ItemGroup><PackageReference Include="MySqlConnector" Version="2.4.0"/><PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All"/></ItemGroup>
+ <ItemGroup><Content Include="Sql\*.sql"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="connection.example.txt"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="..\shared\Assets\*.png"><Link>Assets\%(Filename)%(Extension)</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>
+ <ItemGroup><PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0" PrivateAssets="All"/></ItemGroup>
+ <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>
