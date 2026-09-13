@@ -35,7 +35,7 @@ for(const m of y.modules){
 }
 write(path.join(out,'lessons.js'),'globalThis.LESSONS='+JSON.stringify(lessons)+';\nglobalThis.LESSON_TOC='+JSON.stringify(toc)+';');
 function standalone(title,html){return `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(title)}</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="lessons.css"><main class="standalone"><p><a href="./">← Вернуться к разбору</a></p><h1>${E(title)}</h1>${html}</main></html>`;}
-let gallery='<p>Изображения получены из собранных C#-форм с данными тестовой базы. Полные проекты доступны для обоих стеков.</p>';
+let gallery='<p>Вход, заказчики, расчёт стоимости и управление пользователями. Для каждого стека доступны исходный код и пошаговый разбор.</p>';
 for(const stack of ['mysql','postgresql'])gallery+=`<section><h2>C# WinForms + ${stack==='mysql'?'MySQL':'PostgreSQL'}</h2><p><a href="downloads/polesie-${stack}.zip" download>Скачать проект</a> · <a href="?mode=learn&module=M4&stack=${stack}">Открыть пошаговый разбор</a></p><div class="gallery-grid">${[['login','Вход и пазл'],['customers','Импортированные заказчики'],['costs','Стоимость трёх заказов'],['users','Управление пользователями']].map(([file,title])=>`<figure><a href="screenshots/${stack}/${file}.png"><img src="screenshots/${stack}/${file}.png" alt="${title}"></a><figcaption>${title}</figcaption></figure>`).join('')}</div></section>`;
 write(path.join(out,'gallery.html'),standalone('Примеры работающего приложения',gallery));
 const sources=JSON.parse(fs.readFileSync('docs/sources.json','utf8'));
