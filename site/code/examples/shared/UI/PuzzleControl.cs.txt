@@ -35,6 +35,7 @@ namespace Polesie
                 int position = i;
                 tiles[i] = new Button { Location = new Point(220 + i % 2 * 102, 26 + i / 2 * 102), Size = new Size(102, 102), FlatStyle = FlatStyle.Flat };
                 tiles[i].AccessibleName = "Фрагмент " + (i + 1);
+                tiles[i].TabIndex = i;
                 tiles[i].Click += delegate { SelectTile(position); };
                 Controls.Add(tiles[i]);
             }

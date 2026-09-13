@@ -31,19 +31,17 @@ namespace Polesie
                 }
                 if (user == null) throw new InvalidOperationException(Wrong);
                 if (user.IsLocked) throw new InvalidOperationException(Locked);
-                bool accepted = puzzleSolved && Passwords.Verify(password, user.PasswordHash);
+                bool passwordCorrect = Passwords.Verify(password, user.PasswordHash);
+                bool accepted = puzzleSolved && passwordCorrect;
                 int attempts = accepted ? 0 : user.FailedAttempts + 1;
                 bool locked = attempts >= 3;
-                using (DbCommand command = Db.Command(connection,
-                    "UPDATE users SET failed_attempts=@p0,is_locked=@p1 WHERE id=@p2", attempts, locked, user.Id))
-                {
-                    command.Transaction = transaction;
-                    command.ExecuteNonQuery();
-                }
+                Db.Execute(connection, transaction,
+                    "UPDATE users SET failed_attempts=@p0,is_locked=@p1 WHERE id=@p2", attempts, locked, user.Id);
                 transaction.Commit();
                 if (locked) throw new InvalidOperationException(Locked);
-                if (!accepted)
-                    throw new InvalidOperationException(puzzleSolved ? Wrong : "Пазл собран неверно. Осталось попыток: " + (3 - attempts));
+                if (!passwordCorrect) throw new InvalidOperationException(Wrong);
+                if (!puzzleSolved)
+                    throw new InvalidOperationException("Пазл собран неверно. Осталось попыток: " + (3 - attempts));
                 user.FailedAttempts = 0;
                 return user;
             }

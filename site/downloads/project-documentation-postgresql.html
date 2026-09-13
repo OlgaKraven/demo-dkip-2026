@@ -6,13 +6,13 @@
 <ol><li>Создать пустую базу rassvet_demo_2026 на сервере PostgreSQL.</li><li>Выполнить скрипты 01-schema.sql, 02-customers.sql, 03-demo.sql в указанном порядке.</li><li>Открыть examples/postgresql/Polesie.csproj в Visual Studio. Восстановить NuGet-пакеты, собрать проект.</li><li>В bin/Debug скопировать connection.example.txt в connection.local.txt. Указать собственные параметры сервера.</li><li>Запустить Polesie.postgresql.exe. Сохранить рядом с программой папки Assets, Sql и DLL из результата сборки.</li></ol>
 <p>Учебные учётные записи: admin / DemoAdmin!2026 и user / DemoUser!2026. В базе содержатся PBKDF2-хэши. Для новых пользователей хэш формируется при сохранении. Реквизиты базы в connection.local.txt не являются реквизитами этих учётных записей.</p>
 <h2>Структура и данные</h2>
-<p>UI — формы LoginForm, MainForm и компонент PuzzleControl. Models — классы User и Counterparty. Data/Db.cs — открытие соединений и создание параметризованных команд. Services — AuthService, Passwords, Users, ImportCustomers.</p>
+<p>UI — формы LoginForm, MainForm и компонент PuzzleControl. Models — отдельные классы User, Counterparty, Item, Price, Specification, SpecificationMaterial, CustomerOrder, CustomerOrderLine, Production, ProductionProduct и ProductionMaterial. Data/Db.cs — открытие соединений, параметризованные команды, выборки Table, подсчёт Count и изменения Execute. Services — AuthService, Passwords, Users, ImportCustomers.</p>
 <p>База содержит 11 таблиц: counterparty, item, price, specification, specification_material, customer_order, customer_order_line, production, production_product, production_material, users. Идентификаторы, адреса, телефоны и ИНН из JSON хранятся текстом. Количества и деньги используют DECIMAL. Связи реализованы внешними ключами.</p>
 <h2>Методы и параметры</h2>
 <table><thead><tr><th>Метод</th><th>Параметры</th><th>Возвращает / эффект</th></tr></thead><tbody>
 <tr><td>Db.Open()</td><td>Нет</td><td>Открытое соединение DbConnection; вызывающая сторона закрывает его через using.</td></tr>
 <tr><td>Db.Command(connection, sql, values)</td><td>Соединение, строка SQL, массив значений object[]</td><td>DbCommand с параметрами @p0, @p1…</td></tr>
-<tr><td>Db.Table(sql, values)</td><td>Запрос и параметры</td><td>DataTable с результатом SELECT.</td></tr>
+<tr><td>Db.Execute(connection, transaction, sql, values)</td><td>Соединение, транзакция, SQL и параметры</td><td>Число строк, затронутых INSERT или UPDATE.</td></tr><tr><td>Db.Count(connection, transaction, sql, values)</td><td>Соединение, транзакция, SELECT COUNT(*) и параметры</td><td>Количество найденных записей, int.</td></tr><tr><td>Db.Table(sql, values)</td><td>Запрос и параметры</td><td>DataTable с результатом SELECT.</td></tr>
 <tr><td>AuthService.SignIn(login, password, puzzleSolved)</td><td>string, string, bool</td><td>User при успехе; отказ при пустых полях, неверных данных или блокировке. Обновляет счётчик.</td></tr>
 <tr><td>Passwords.Hash(password)</td><td>Пароль string</td><td>Строка salt:hash.</td></tr>
 <tr><td>Passwords.Verify(password, stored)</td><td>Введённый пароль и сохранённое значение</td><td>bool — совпало ли вычисление.</td></tr>

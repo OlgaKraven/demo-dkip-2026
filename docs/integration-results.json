@@ -1,12 +1,4 @@
 [
-  {
-    "stack": "mysql",
-    "server": "MySQL 8.4.0",
-    "result": "PASS: 24 checks; costs 371.00 / 126.45 / 183.95; customers 6"
-  },
-  {
-    "stack": "postgresql",
-    "server": "PostgreSQL 18",
-    "result": "PASS: 24 checks; costs 371.00 / 126.45 / 183.95; customers 6"
-  }
+  {"stack":"mysql","server":"MySQL 8.4.0","result":"PASS: 52 checks; costs 371.00 / 126.45 / 183.95; customers 6"},
+  {"stack":"postgresql","server":"PostgreSQL 18","result":"PASS: 52 checks; costs 371.00 / 126.45 / 183.95; customers 6"}
 ]

@@ -12,7 +12,7 @@
 <table><thead><tr><th>Метод</th><th>Параметры</th><th>Возвращает / эффект</th></tr></thead><tbody>
 <tr><td>Db.Open()</td><td>Нет</td><td>Открытое соединение DbConnection; вызывающая сторона закрывает его через using.</td></tr>
 <tr><td>Db.Command(connection, sql, values)</td><td>Соединение, строка SQL, массив значений object[]</td><td>DbCommand с параметрами @p0, @p1…</td></tr>
-<tr><td>Db.Table(sql, values)</td><td>Запрос и параметры</td><td>DataTable с результатом SELECT.</td></tr>
+<tr><td>Db.Execute(connection, transaction, sql, values)</td><td>Соединение, транзакция, SQL и параметры</td><td>Число строк, затронутых INSERT или UPDATE.</td></tr><tr><td>Db.Count(connection, transaction, sql, values)</td><td>Соединение, транзакция, SELECT COUNT(*) и параметры</td><td>Количество найденных записей, int.</td></tr><tr><td>Db.Table(sql, values)</td><td>Запрос и параметры</td><td>DataTable с результатом SELECT.</td></tr>
 <tr><td>AuthService.SignIn(login, password, puzzleSolved)</td><td>string, string, bool</td><td>User при успехе; отказ при пустых полях, неверных данных или блокировке. Обновляет счётчик.</td></tr>
 <tr><td>Passwords.Hash(password)</td><td>Пароль string</td><td>Строка salt:hash.</td></tr>
 <tr><td>Passwords.Verify(password, stored)</td><td>Введённый пароль и сохранённое значение</td><td>bool — совпало ли вычисление.</td></tr>

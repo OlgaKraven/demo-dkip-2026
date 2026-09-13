@@ -57,6 +57,7 @@ namespace Polesie
             this.puzzleLabel.Margin = new Padding(3,18,3,8);
             this.puzzleHost = new System.Windows.Forms.Panel();
             this.puzzleHost.Name = "puzzleHost";
+            this.puzzleHost.TabIndex = 2;
             this.puzzleHost.Size = new Size(450,236);
             this.puzzleHost.BorderStyle = BorderStyle.FixedSingle;
             this.enter = new System.Windows.Forms.Button();
@@ -66,7 +67,7 @@ namespace Polesie
             this.enter.BackColor = Color.FromArgb(210,32,46);
             this.enter.ForeColor = Color.White;
             this.enter.FlatStyle = FlatStyle.Flat;
-            this.enter.TabIndex = 2;
+            this.enter.TabIndex = 3;
             this.layout.Controls.Add(this.titleLabel);
             this.layout.Controls.Add(this.loginLabel);
             this.layout.Controls.Add(this.login);

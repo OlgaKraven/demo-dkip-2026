@@ -45,6 +45,24 @@ namespace Polesie
             return command;
         }
 
+        public static int Execute(DbConnection connection, DbTransaction transaction, string sql, params object[] values)
+        {
+            using (DbCommand command = Command(connection, sql, values))
+            {
+                command.Transaction = transaction;
+                return command.ExecuteNonQuery();
+            }
+        }
+
+        public static int Count(DbConnection connection, DbTransaction transaction, string sql, params object[] values)
+        {
+            using (DbCommand command = Command(connection, sql, values))
+            {
+                command.Transaction = transaction;
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
+        }
+
         public static DataTable Table(string sql, params object[] values)
         {
             using (DbConnection connection = Open())
