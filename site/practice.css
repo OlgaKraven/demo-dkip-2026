@@ -4,3 +4,5 @@
 @media(max-width:480px){.practice-nav{grid-template-columns:1fr}.practice-intro{padding:20px}.practice-intro h2{font-size:27px}.practice-facts span{font-size:12px}.practice-task{padding:12px}.practice-downloads .btn{width:100%;text-align:center}.source-excerpt{padding:13px}.practice-next .btn{width:100%}.asset-list li{font-size:13px}}
 @media print{.practice-timer,.practice-select,.practice-nav,.practice-hints{display:none}.practice-workspace{display:block}.source-excerpt{white-space:pre-line;background:white;color:black}.practice-intro{border:0}.practice-summary{border:0}}
 .learn-condition{white-space:pre-line}
+
+.practice-assessment{margin-top:24px}.practice-assessment table{width:100%;border-collapse:collapse}.practice-assessment th,.practice-assessment td{padding:12px;text-align:left;border-bottom:1px solid var(--line,#dfe0e5);vertical-align:top}.practice-assessment th:last-child,.practice-assessment td:last-child{width:110px;text-align:center}.practice-assessment tfoot{font-weight:700}.practice-assessment h3{margin-bottom:14px}
