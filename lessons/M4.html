@@ -1,4 +1,4 @@
-<p class="lesson-lead">Соберём настольное приложение «Молочный комбинат „Полесье“». Начнём с запуска готового проекта, затем проследим путь от кнопки «Войти» до запроса в базу и разберём каждый файл.</p>
+<p class="lesson-lead">Соберём настольное приложение «Молочный комбинат „Полесье“». Создадим формы в визуальном конструкторе, подключим обработчики кнопок и проследим путь от «Войти» до запроса в базу. Рядом с шагами показаны работающие окна.</p>
 <h3>1. Подготовьте Visual Studio</h3>
 <p>Нужна Visual Studio с компонентом «Разработка классических приложений .NET» и .NET Framework 4.8. В проекте используются обычные Windows Forms, обработчики кнопок и SQL-команды. NuGet восстанавливает драйвер базы и необходимые библиотеки при первой сборке; на рабочем месте без сети подготовьте их заранее.</p>
 <p>Скачайте ZIP выбранного стека и распакуйте целиком. Не открывайте csproj внутри архива. Откройте <code>examples/{{stack}}/Polesie.csproj</code> двойным щелчком. Соседняя папка <code>shared</code> должна остаться на месте: в ней общие формы и классы.</p>
@@ -15,21 +15,64 @@
 <h3>4. Найдите файлы в проекте</h3>
 <table><thead><tr><th>Файл</th><th>За что отвечает</th><th>С чего начать чтение</th></tr></thead><tbody>
 <tr><td>Program.cs</td><td>Запуск приложения</td><td>Application.Run(new LoginForm())</td></tr>
-<tr><td>UI/LoginForm.cs</td><td>Поля входа и кнопка</td><td>Конструктор, затем SignIn</td></tr>
+<tr><td>UI/LoginForm.cs</td><td>Поля входа и кнопка</td><td>LoginForm.Designer.cs, затем SignIn</td></tr>
 <tr><td>UI/PuzzleControl.cs</td><td>Картинка, фрагменты и обмен</td><td>order, SelectTile, IsSolved</td></tr>
 <tr><td>Data/Db.cs</td><td>Соединение и SQL-параметры</td><td>Open и Command</td></tr>
 <tr><td>Models/User.cs</td><td>Одна запись пользователя</td><td>Сопоставьте свойства столбцам users</td></tr>
 <tr><td>Services/AuthService.cs</td><td>Проверка входа и счётчик ошибок</td><td>SignIn</td></tr>
 <tr><td>Services/Passwords.cs</td><td>Хэширование и проверка пароля</td><td>Hash, затем Verify</td></tr>
-<tr><td>UI/MainForm.cs</td><td>Таблицы, импорт, редактор пользователей</td><td>AddUsers и SaveUser</td></tr>
+<tr><td>UI/MainForm.cs</td><td>Таблицы, импорт, редактор пользователей</td><td>MainForm.Designer.cs и SaveUser</td></tr>
 <tr><td>Services/Users.cs</td><td>Добавление, изменение, разблокировка</td><td>RequireAdmin и Save</td></tr>
 <tr><td>Models/Counterparty.cs, Services/ImportCustomers.cs</td><td>Чтение исходного JSON</td><td>Поля JSON и метод Run</td></tr>
 </tbody></table>
 <p>Формы размещены в UI, сущности в Models, доступ к данным в Data, действия в Services. Внутри формы нет SQL-склейки со значениями полей. Отдельные классы помогают найти нужный участок, не перелистывая один огромный файл.</p>
-<h3>5. Поймите, как появляется окно</h3>
-<p><code>LoginForm : Form</code> означает: наш класс является формой Windows. Конструктор выполняется при <code>new LoginForm()</code>. Он задаёт заголовок, минимальный размер, поля и кнопку. <code>Controls.Add</code> помещает элемент внутрь контейнера. <code>Dock = Fill</code> позволяет области занимать свободное место.</p>
-<p>Здесь интерфейс создаётся кодом. Поэтому в архиве нет отдельного Designer-файла для каждой формы. Чтобы увидеть форму, запустите проект. Изменение текста кнопки делается в её свойстве Text; изменение минимального размера — в MinimumSize. Изменения логики находятся в обработчиках, а не в коде раскладки.</p>
+<h3>5. Соберите форму в конструкторе Visual Studio</h3>
+<p>В обозревателе решений откройте папку UI. Нажмите правой кнопкой <code>LoginForm.cs</code> → «Просмотреть конструктор» или Shift+F7. Чтобы перейти к обработчикам, нажмите F7. Раскладка хранится в <code>LoginForm.Designer.cs</code>, действия — в <code>LoginForm.cs</code>. Это две части одного класса.</p>
+<h4>Если создаёте форму с пустого листа</h4>
+<ol><li>Создайте проект «Приложение Windows Forms (.NET Framework)», C#, .NET Framework 4.8. Назовите пространство имён Polesie.</li><li>В обозревателе решений переименуйте Form1.cs в LoginForm.cs и согласитесь переименовать класс. Проверьте в Program.cs строку <code>Application.Run(new LoginForm());</code>.</li><li>Откройте «Вид» → «Панель элементов» (Ctrl+Alt+X) и «Вид» → «Окно свойств» (F4). Перетаскивайте элементы на форму, затем задавайте свойства по таблицам ниже.</li><li>В готовом проекте эти элементы уже размещены: можно менять их свойства и сразу запускать форму. Для проекта с нуля добавьте классы из Data, Models, Services и UI/PuzzleControl.cs, драйвер NuGet выбранной СУБД и папки Assets и Sql из примера.</li></ol>
+<h4>Окно входа</h4>
+<table><thead><tr><th>Что выбрать</th><th>(Name)</th><th>Свойства в F4</th><th>Зачем</th></tr></thead><tbody>
+<tr><td>Форма</td><td>LoginForm</td><td>Text = Молочный комбинат «Полесье» — вход; Size = 720, 640; MinimumSize = 660, 570; StartPosition = CenterScreen</td><td>Заголовок и размер окна</td></tr>
+<tr><td>FlowLayoutPanel</td><td>layout</td><td>Dock = Fill; FlowDirection = TopDown; WrapContents = False; Padding = 28; AutoScroll = True</td><td>Располагает элементы сверху вниз</td></tr>
+<tr><td>Label</td><td>titleLabel</td><td>Text = Молочный комбинат «Полесье»; AutoSize = True; Font = Segoe UI, 20, Bold</td><td>Название в верхней части</td></tr>
+<tr><td>Label + TextBox</td><td>loginLabel + login</td><td>Text метки = Логин; Width поля = 300; MaxLength = 64; TabIndex = 0</td><td>Ввод логина</td></tr>
+<tr><td>Label + TextBox</td><td>passwordLabel + password</td><td>Text метки = Пароль; Width = 300; MaxLength = 256; UseSystemPasswordChar = True; TabIndex = 1</td><td>Скрывает введённый пароль</td></tr>
+<tr><td>Label</td><td>puzzleLabel</td><td>Text = Соберите изображение, затем нажмите «Войти»; AutoSize = True</td><td>Инструкция к пазлу</td></tr>
+<tr><td>Panel</td><td>puzzleHost</td><td>Size = 450, 236</td><td>Место для пазла</td></tr>
+<tr><td>Button</td><td>enter</td><td>Text = Войти; Size = 150, 40; TabIndex = 2</td><td>Запуск проверки</td></tr>
+</tbody></table>
+<p>Помещайте метки, поля, панель пазла и кнопку <strong>внутрь layout</strong>. Порядок элементов соответствует строкам таблицы. Если элемент оказался на самой форме, перетащите его в layout через окно «Структура документа».</p>
+<p>Для формы задайте AcceptButton = enter. Теперь Enter нажимает «Войти». Свойство (Name) используется в C#; Text — надпись, которую видит пользователь. Изменение Text не переименовывает переменную.</p>
+<h4>Привяжите кнопку к коду</h4>
+<ol><li>Выберите кнопку enter. В F4 нажмите значок молнии — это список событий.</li><li>У события Click укажите <code>SignIn</code>. В готовом проекте этот метод уже существует.</li><li>Если Visual Studio создала <code>enter_Click</code>, перенесите в него тело SignIn и используйте только один обработчик. Две подписки вызовут проверку дважды.</li><li>В конструкторе класса оставьте <code>InitializeComponent();</code> первым. После него добавьте пазл в подготовленную панель:</li></ol>
+<pre><code>public LoginForm()
+{
+    InitializeComponent();
+    puzzle = new PuzzleControl();
+    puzzleHost.Controls.Add(puzzle);
+}</code></pre>
+<p>Поле <code>private readonly PuzzleControl puzzle;</code> объявлено внутри класса, перед конструктором. Во время запуска панель заполняется картинкой и фрагментами. Картинки должны лежать в Assets рядом с exe. В визуальном конструкторе достаточно разместить саму панель.</p>
+<img class="lesson-image" src="screenshots/{{stack}}/login.png" alt="Результат сборки формы: логин, пароль, область пазла и кнопка входа">
+<h4>Главная форма и вкладки</h4>
+<ol><li>Откройте <code>MainForm.cs</code> в конструкторе. В новом проекте добавьте ещё одну Windows Form с именем MainForm.</li><li>Добавьте TabControl с именем tabs и Dock = Fill. Через свойство TabPages создайте customersPage, costsPage и usersPage. Значения Text: «Заказчики», «Стоимость заказов», «Пользователи».</li><li>На каждой странице разместите DataGridView: customers, costs и users соответственно. У всех задайте Dock = Fill, ReadOnly = True, AllowUserToAddRows = False, AutoSizeColumnsMode = Fill, SelectionMode = FullRowSelect, MultiSelect = False.</li><li>На странице заказчиков разместите FlowLayoutPanel customersToolbar с Dock = Top и Height = 46. Внутри — кнопки refreshButton («Обновить») и importButton («Импорт Заказчики.json»). Импорт — дополнительная возможность из модуля 2.</li><li>На странице стоимости добавьте Label costsHint с Dock = Top, Height = 50 и пояснением, что отображается материальная стоимость.</li><li>На странице пользователей разместите FlowLayoutPanel userFields с Dock = Bottom, Height = 165. Внутри добавьте поля и кнопки из следующей таблицы.</li></ol>
+<table><thead><tr><th>Элемент</th><th>(Name)</th><th>Настройки</th></tr></thead><tbody>
+<tr><td>TextBox логина</td><td>login</td><td>Width = 180, MaxLength = 64; перед полем Label «Логин»</td></tr>
+<tr><td>TextBox пароля</td><td>password</td><td>Width = 180, UseSystemPasswordChar = True; перед полем Label «Новый пароль»</td></tr>
+<tr><td>ComboBox</td><td>role</td><td>DropDownStyle = DropDownList; Items: user и admin, каждый на новой строке</td></tr>
+<tr><td>CheckBox</td><td>unlock</td><td>Text = Снять блокировку</td></tr>
+<tr><td>Button</td><td>newUserButton</td><td>Text = Новый пользователь; событие Click = NewUser</td></tr>
+<tr><td>Button</td><td>saveUserButton</td><td>Text = Сохранить; событие Click = SaveUser</td></tr>
+</tbody></table>
+<p>Событие CellClick таблицы users связывается с SelectUser, Click кнопки refreshButton — с RefreshData, Click кнопки importButton — с Import. Данные назначаются через DataSource при запуске; пустая таблица в конструкторе — нормальный вид.</p>
+<p>У MainForm есть конструктор без параметров для раскладки и конструктор <code>MainForm(User user)</code> для запуска после входа. Второй принимает пользователя, скрывает вкладку администрирования для роли user и вызывает Reload. Обращаться к базе внутри InitializeComponent не нужно.</p>
+<img class="lesson-image" src="screenshots/{{stack}}/users.png" alt="Главная форма после запуска: вкладки, таблица пользователей и редактор снизу">
+<details><summary><strong>Те же формы через код</strong></summary><p>Конструктор Visual Studio записывает свойства элементов в InitializeComponent. По этим файлам можно сопоставить каждую настройку F4 со строкой C#. Чтобы изменить внешний вид, удобнее открыть конструктор; обработчики редактируйте в основных файлах форм.</p>
+{{code:examples/shared/UI/LoginForm.Designer.cs}}
+{{code:examples/shared/UI/MainForm.Designer.cs}}
+</details>
+<p>Далее — код входа, который выполняется после щелчка. Он одинаков для формы, собранной мышью, и формы с теми же свойствами, заданными кодом.</p>
 {{code:examples/shared/UI/LoginForm.cs}}
+
 <h3>6. Разберите обработчик кнопки</h3>
 <ol><li><code>enter.Click += SignIn</code> связывает щелчок с методом SignIn. До щелчка проверка не выполняется.</li><li><code>login.Text</code> и <code>password.Text</code> содержат введённые строки.</li><li><code>puzzle.IsSolved()</code> возвращает true или false, а не готовое сообщение.</li><li>AuthService проверяет запись и возвращает объект User при успехе. Объект переносит id, login и role в главное окно.</li><li><code>Hide()</code> скрывает окно входа. <code>ShowDialog()</code> открывает рабочее окно. Когда его закрывают, finally очищает пароль, перемешивает пазл и снова показывает вход.</li><li>catch отображает ожидаемые ошибки понятным сообщением. Ошибка связи с сервером не закрывает программу.</li></ol>
 <h3>7. Проверьте пазл</h3>
@@ -59,13 +102,13 @@
 <p>В MainForm метод Reload читает заказчиков, затем файл 04-cost.sql. Полученный DataTable назначается свойству DataSource таблицы на форме. <code>AutoSizeColumnsMode=Fill</code> распределяет ширину между столбцами, а Dock=Fill увеличивает таблицу вместе с окном.</p>
 <p>Обработчик CellClick получает выбранную строку и копирует id, login и role в редактор. selectedId=0 обозначает добавление новой записи; ненулевой id обозначает изменение существующей. Пароль при выборе строки остаётся пустым, потому что восстановить его из хэша нельзя.</p>
 {{code:examples/shared/UI/MainForm.cs}}
-<h3>13. Импортируйте JSON через приложение</h3>
-<p>На вкладке «Заказчики» нажмите «Импорт Заказчики.json» и выберите исходный файл. Импорт читает массив Counterparty, для каждого id проверяет существование записи и выполняет INSERT или UPDATE. Все строки записываются в одной транзакции: если данные некорректны, весь импорт отменяется.</p>
-<img class="lesson-image" src="screenshots/{{stack}}/customers.png" alt="Форма WinForms с шестью заказчиками из исходного JSON">
-{{code:examples/shared/Models/Counterparty.cs}}
-{{code:examples/shared/Services/ImportCustomers.cs}}
+<h3>13. Проверьте экраны на данных</h3>
+<p>Откройте «Заказчики»: таблица должна показывать записи из базы. Перейдите на «Стоимость заказов»: значения должны совпадать с запросом из модуля 3. Вернитесь на «Пользователи» под admin и проверьте редактор выбранной строки.</p>
+<img class="lesson-image" src="screenshots/{{stack}}/customers.png" alt="Рабочий экран заказчиков внутри приложения">
+<img class="lesson-image" src="screenshots/{{stack}}/costs.png" alt="Рабочий экран расчёта трёх заказов">
+<p>Импорт JSON разобран в модуле 2, в дополнительном способе через приложение.</p>
 <h3>14. Проверьте приложение перед сохранением</h3>
-<ul><li>Оба пустых поля → просьба заполнить логин и пароль.</li><li>Верный пароль и неверный пазл → отказ; счётчик увеличен на один.</li><li>Верный пазл и неверный пароль → точное сообщение из задания.</li><li>Третья последовательная ошибка → блокировка; перезапуск приложения её не снимает.</li><li>Снятие блокировки администратором → успешный вход после правильного пазла.</li><li>Роль user → нет вкладки управления пользователями.</li><li>Изменение размеров → таблица растёт, подписи и поля не исчезают.</li><li>Недоступный сервер → сообщение о соединении, приложение остаётся открытым.</li></ul>
+<ul><li>Оба пустых поля → просьба заполнить логин и пароль.</li><li>Верный пароль и неверный пазл → отказ; счётчик увеличен на один.</li><li>Верный пазл и неверный пароль → точное сообщение из задания.</li><li>Третья последовательная ошибка → блокировка; перезапуск приложения её не снимает.</li><li>Снятие блокировки администратором → успешный вход после правильного пазла.</li><li>Роль user → нет вкладки управления пользователями.</li><li>Изменение размеров → таблица растёт, подписи и поля не исчезают.</li></ul>
 <h3>15. Если что-то не запускается</h3>
 <p><strong>Не найден shared.</strong> Распакуйте весь ZIP с сохранением папок. <strong>Не найден Assets/1.png.</strong> Пересоберите проект; проверьте папку Assets рядом с exe. <strong>Connection refused.</strong> Запустите сервер и проверьте порт. <strong>Access denied / password authentication failed.</strong> Исправьте пользователя базы в connection.local.txt. <strong>Table users does not exist.</strong> Выбрана другая база или не выполнен 01-schema.sql.</p>
 <div class="rule">Результат: открываемый C#-проект, рабочая база, папки Assets и Sql, проверенные сценарии входа и администрирования. В следующем модуле опишем именно эти формы и методы.</div>

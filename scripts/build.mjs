@@ -17,7 +17,7 @@ y.practice.tasks.find(t=>t.id==='M3').hints[2]='Выбирайте цену ма
 y.practice.tasks.find(t=>t.id==='M5').hints[1]='Укажите назначение, параметры и результаты методов своего приложения; добавьте снимки форм и порядок запуска.';
 y.completeCourse=false;
 ExamCore.validateCourse(c);
-for(const f of ['index.html','style.css','practice.css','lessons.css','core.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
+for(const f of ['index.html','style.css','practice.css','lessons.css','core.js','conditions.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
 for(const f of ['practice','sources','screenshots','diagrams'])fs.cpSync(path.join('materials',f),path.join(out,f),{recursive:true});
 write(path.join(out,'course.js'),'globalThis.COURSE='+JSON.stringify(c)+';\n');
 const lessons={},toc={};
@@ -42,9 +42,7 @@ for(const m of y.modules){
 }
 write(path.join(out,'lessons.js'),'globalThis.LESSONS='+JSON.stringify(lessons)+';\nglobalThis.LESSON_TOC='+JSON.stringify(toc)+';');
 function standalone(title,html){return `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(title)}</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="lessons.css"><main class="standalone"><p><a href="./">← Вернуться к разбору</a></p><h1>${E(title)}</h1>${html}</main></html>`;}
-let gallery='<p>Вход, заказчики, расчёт стоимости и управление пользователями. Для каждого стека доступны исходный код и пошаговый разбор.</p>';
-for(const stack of ['mysql','postgresql'])gallery+=`<section><h2>C# WinForms + ${stack==='mysql'?'MySQL':'PostgreSQL'}</h2><p><a href="downloads/polesie-${stack}.zip" download>Скачать проект</a> · <a href="?mode=learn&module=M4&stack=${stack}">Открыть пошаговый разбор</a></p><div class="gallery-grid">${[['login','Вход и пазл'],['customers','Импортированные заказчики'],['costs','Стоимость трёх заказов'],['users','Управление пользователями']].map(([file,title])=>`<figure><a href="screenshots/${stack}/${file}.png"><img src="screenshots/${stack}/${file}.png" alt="${title}"></a><figcaption>${title}</figcaption></figure>`).join('')}</div></section>`;
-write(path.join(out,'gallery.html'),standalone('Примеры работающего приложения',gallery));
+write(path.join(out,'gallery.html'),'<!doctype html><html lang="ru"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./?mode=learn&module=M4"><title>Разбор приложения</title><p><a href="./?mode=learn&module=M4">Открыть разбор приложения с примерами экранов</a></p></html>');
 const sources=JSON.parse(fs.readFileSync('docs/sources.json','utf8'));
 write(path.join(out,'sources.html'),standalone('Источники и адаптация к 2026 году',`<p>Основа интерфейса — утверждённый шаблон. Основной маршрут соответствует только базовому уровню КОД 09.02.07-5-2026.</p><ul>${sources.repositories.map(r=>`<li><a href="${r.url}">${E(r.name)}</a> · ${E(r.used)} · версия <code>${r.commit.slice(0,8)}</code></li>`).join('')}</ul><h2>Что исправлено</h2><ul>${sources.changes.map(s=>'<li>'+E(s)+'</li>').join('')}</ul><p><a href="sources/2026.pdf">Официальный документ из переданного комплекта</a>. Исходный JSON и картинки капчи сохранены. Данные продуктов и заказов в разборе учебные; они не объявляются официальным решением.</p>`));
 const results=JSON.parse(fs.readFileSync('docs/integration-results.json','utf8'));

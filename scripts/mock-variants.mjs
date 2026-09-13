@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import '../src/conditions.js';
 
 // Each row defines a separate manufacturing brief: company, two products, three materials.
 const domains=[
@@ -74,7 +75,7 @@ export function buildVariants(out,zip,standalone){
  for(const f of source.files){const p=path.join('materials',f.url);if(fs.existsSync(p))shared['Приложения_M4/'+f.name]=fs.readFileSync(p);}
  fs.mkdirSync(path.join(out,'mock'),{recursive:true});
  for(const v of variants){
-  const body=`<p>Учебный вариант ${v.id} · номер по списку ${v.number} · C# WinForms + MySQL / PostgreSQL · 150 минут</p><p>Выполните пять заданий на одном наборе данных. Материалы подходят для обоих стеков.</p>${v.tasks.map(t=>`<h2>${esc(t.id+' · '+t.title)}</h2><p>${esc(t.text)}</p>`).join('')}${v.inputHtml}<h2>Требования к приложению</h2><pre style="white-space:pre-wrap">${esc(source.text)}</pre>`;
+  const body=`<p>Учебный вариант ${v.id} · номер по списку ${v.number} · C# WinForms + MySQL / PostgreSQL · 150 минут</p><p>Выполните пять заданий на одном наборе данных. Материалы подходят для обоих стеков.</p>${v.tasks.map(t=>`<h2>${esc(t.id+' · '+t.title)}</h2>${ExamConditions.format(t.text,t.id)}`).join('')}${v.inputHtml}<h2>Требования к приложению</h2>${ExamConditions.format(source.text,'M4',true)}`;
   const page=standalone(`${v.id} · ${v.company}`,body).replaceAll('href="style.css"','href="../style.css"').replaceAll('href="lessons.css"','href="../lessons.css"').replaceAll('href="./"','href="../?mode=mock"');
   fs.writeFileSync(path.join(out,v.document),page);
   const data={variant:v.id,company:v.company,products:v.products,materials:v.materials,specifications:v.recipe,prices:v.prices.map(p=>({material:p.material,from:p.from,price:money(p.cents)})),orders:v.orders,production:v.production};

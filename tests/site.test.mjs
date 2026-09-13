@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import path from 'node:path';
-import '../src/core.js';import '../src/practice.js';
+import '../src/core.js';import '../src/conditions.js';import '../src/practice.js';
 import {makeVariants} from '../scripts/mock-variants.mjs';
 const sandbox={};vm.runInNewContext(fs.readFileSync('site/course.js','utf8')+fs.readFileSync('site/lessons.js','utf8'),sandbox);
 const {COURSE:c,LESSONS:lessons}=sandbox,y=c.years[0];
@@ -36,4 +36,24 @@ test('both database guides contain complete structure and no obsolete client',()
  for(const stack of ['mysql','postgresql']){const html=lessons.M2[stack];assert.equal((html.match(/class="schema-card"/g)||[]).length,11);assert.doesNotMatch(html,/\{\{|Workbench/);}
  assert.match(lessons.M2.mysql,/Способ А/);assert.match(lessons.M2.mysql,/Способ Б/);
  const svg=fs.readFileSync('site/diagrams/er.svg','utf8');assert.doesNotMatch(svg,/name, inn|qty, sale_price|password_hash, role/);
+});
+test('readable official conditions preserve the complete source wording',()=>{
+ const plain=s=>s.replace(/<h4>[\s\S]*?<\/h4>/g,'').replace(/<[^>]*>/g,' ').replaceAll('&quot;','"').replaceAll('&#39;',"'").replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&amp;','&').replace(/\s+/g,' ').trim();
+ for(const t of y.practice.tasks){
+  const expected=t.text.replace(/^Модуль\s+\d+\.[^\n]*\n\s*/,'').replace('Необходимые приложения:','').replace(/\n\s*-\s+/g,' ').replace(/\s+/g,' ').trim();
+  const formatted=ExamConditions.format(t.text,t.id,true);assert.equal(plain(formatted),expected,t.id);assert.match(formatted,/<section/);
+ }
+ assert.match(ExamConditions.format(y.practice.tasks[2].text,'M3',true),/<ul>/);
+ assert.doesNotMatch(ExamConditions.format(y.practice.tasks[0].text,'M1',true),/<ul>/);
+ assert.doesNotMatch(ExamConditions.format('<script>alert(1)</script>'),/<script>/);
+});
+test('database screenshots and C# designer routes are integrated into lessons',()=>{
+ const db=lessons.M2.mysql,app=lessons.M4.mysql;
+ for(const name of ['01-create-table','02-table-structure','03-foreign-key','04-designer'])assert.match(db,new RegExp(name));
+ assert.match(db,/Дополнительный способ: импорт JSON/);assert.doesNotMatch(app,/<h3>13\. Импортируйте JSON/);
+ for(const name of ['LoginForm','MainForm'])for(const stack of ['mysql','postgresql']){
+  const project=fs.readFileSync(`examples/${stack}/Polesie.csproj`,'utf8');assert.ok(project.includes(`${name}.Designer.cs`));assert.ok(project.includes(`<DependentUpon>${name}.cs</DependentUpon>`));
+  assert.ok(fs.existsSync(`site/code/examples/shared/UI/${name}.Designer.cs.txt`));
+ }
+ assert.match(app,/Shift\+F7/);assert.doesNotMatch(fs.readFileSync('site/course-app.js','utf8'),/gallery.html/);
 });

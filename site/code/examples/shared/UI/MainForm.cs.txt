@@ -6,96 +6,49 @@ using System.Windows.Forms;
 
 namespace Polesie
 {
-    public class MainForm : Form
+    public partial class MainForm : Form
     {
         private readonly User actor;
-        private readonly DataGridView customers = Grid();
-        private readonly DataGridView costs = Grid();
-        private readonly DataGridView users = Grid();
-        private readonly TextBox login = new TextBox { Width = 180, MaxLength = 64 };
-        private readonly TextBox password = new TextBox { Width = 180, MaxLength = 256, UseSystemPasswordChar = true };
-        private readonly ComboBox role = new ComboBox { Width = 110, DropDownStyle = ComboBoxStyle.DropDownList };
-        private readonly CheckBox unlock = new CheckBox { Text = "Снять блокировку", AutoSize = true };
-        private readonly TabControl tabs = new TabControl { Dock = DockStyle.Fill };
         private int selectedId;
 
-        public MainForm(User user)
+        public MainForm()
+        {
+            InitializeComponent();
+            role.SelectedIndex = 0;
+        }
+
+        public MainForm(User user) : this()
         {
             actor = user;
-            Text = "Молочный комбинат «Полесье» — " + actor.Login + " (" + actor.Role + ")";
-            Font = new Font("Segoe UI", 10);
-            MinimumSize = new Size(880, 600);
-            Size = new Size(1150, 720);
-            StartPosition = FormStartPosition.CenterScreen;
-            Controls.Add(tabs);
-            AddCustomers();
-            AddCosts();
-            if (actor.Role == "admin") AddUsers();
+            Text += " — " + actor.Login + " (" + actor.Role + ")";
+            if (actor.Role != "admin")
+            {
+                tabs.TabPages.Remove(usersPage);
+                importButton.Visible = false;
+            }
             Reload();
         }
 
-        private static DataGridView Grid()
-        {
-            return new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false, RowHeadersVisible = false, BackgroundColor = Color.White };
-        }
+        private void RefreshData(object sender, EventArgs e) { Safe(Reload); }
 
-        private Button Button(string text, EventHandler action)
+        private void NewUser(object sender, EventArgs e)
         {
-            var button = new Button { Text = text, AutoSize = true, Height = 36 };
-            button.Click += action;
-            return button;
-        }
-
-        private void AddCustomers()
-        {
-            var page = new TabPage("Заказчики");
-            page.Controls.Add(customers);
-            var toolbar = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 46 };
-            toolbar.Controls.Add(Button("Обновить", delegate { Safe(Reload); }));
-            if (actor.Role == "admin") toolbar.Controls.Add(Button("Импорт Заказчики.json", Import));
-            page.Controls.Add(toolbar);
-            tabs.TabPages.Add(page);
-        }
-
-        private void AddCosts()
-        {
-            var page = new TabPage("Стоимость заказов");
-            page.Controls.Add(costs);
-            page.Controls.Add(new Label { Dock = DockStyle.Top, Height = 50, Padding = new Padding(8), Text = "Стоимость материалов с учётом норм и количества. Пустой итог означает: не хватает цены или спецификации." });
-            tabs.TabPages.Add(page);
-        }
-
-        private void AddUsers()
-        {
-            var page = new TabPage("Пользователи");
-            page.Controls.Add(users);
-            var fields = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 165, Padding = new Padding(12), AutoScroll = true };
-            role.Items.AddRange(new object[] { "user", "admin" });
+            selectedId = 0;
+            login.Clear();
+            password.Clear();
             role.SelectedIndex = 0;
-            fields.Controls.Add(new Label { Text = "Логин", AutoSize = true });
-            fields.Controls.Add(login);
-            fields.Controls.Add(new Label { Text = "Новый пароль", AutoSize = true });
-            fields.Controls.Add(password);
-            fields.Controls.Add(role);
-            fields.Controls.Add(unlock);
-            fields.SetFlowBreak(unlock, true);
-            fields.Controls.Add(Button("Новый пользователь", delegate { selectedId = 0; login.Clear(); password.Clear(); role.SelectedIndex = 0; unlock.Checked = false; }));
-            fields.Controls.Add(Button("Сохранить", SaveUser));
-            fields.Controls.Add(new Label { Text = "Для изменения выберите строку. Пустой пароль сохраняет прежний; для нового пользователя пароль обязателен.", AutoSize = true, MaximumSize = new Size(760, 0) });
-            page.Controls.Add(fields);
-            users.CellClick += delegate(object sender, DataGridViewCellEventArgs e)
-            {
-                if (e.RowIndex < 0) return;
-                DataRowView row = (DataRowView)users.Rows[e.RowIndex].DataBoundItem;
-                selectedId = Convert.ToInt32(row["id"]);
-                login.Text = Convert.ToString(row["login"]);
-                role.SelectedItem = Convert.ToString(row["role"]);
-                password.Clear();
-                unlock.Checked = false;
-            };
-            tabs.TabPages.Add(page);
+            unlock.Checked = false;
+        }
+
+        private void SelectUser(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            DataRowView row = (DataRowView)users.Rows[e.RowIndex].DataBoundItem;
+            selectedId = Convert.ToInt32(row["id"]);
+            login.Text = Convert.ToString(row["login"]);
+            role.SelectedItem = Convert.ToString(row["role"]);
+            password.Clear();
+            unlock.Checked = false;
         }
 
         private void Reload()
