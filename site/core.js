@@ -16,7 +16,10 @@
   function timerView(s, now = Date.now()) {
     const used = elapsed(s, now);
     return {used, left:Math.max(0, s.durationMs-used), over:Math.max(0, used-s.durationMs),
-      expired:used >= s.durationMs, progress:Math.min(1, used/s.durationMs), clockChanged:now < s.lastSeenMs - 2000};
+      expired:used >= s.durationMs, progress:Math.min(1, used/s.durationMs), clockChanged:s.clockChanged===true||now < s.lastSeenMs - 2000};
+  }
+  function checkpoint(s, now=Date.now()) {
+    return {...s,elapsedMs:elapsed(s,now),anchorMs:s.status==='running'?now:null,lastSeenMs:now,clockChanged:s.clockChanged===true||now<s.lastSeenMs-2000};
   }
   function transition(s, action, now = Date.now()) {
     const n = {...s, lastSeenMs:now};
@@ -105,5 +108,5 @@
     const parts=[...local,...central,end],out=new Uint8Array(parts.reduce((s,a)=>s+a.length,0));let at=0;for(const p of parts){out.set(p,at);at+=p.length;}return out;
   }
   const csv = rows => '\ufeff'+rows.map(row=>row.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(';')).join('\r\n')+'\r\n';
-  root.ExamCore=Object.freeze({VERSION,escape,assert,timerKey,freshTimer,elapsed,timerView,transition,format,restoreTimer,validateCourse,zip,csv});
+  root.ExamCore=Object.freeze({VERSION,escape,assert,timerKey,freshTimer,elapsed,timerView,checkpoint,transition,format,restoreTimer,validateCourse,zip,csv});
 })(globalThis);

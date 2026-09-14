@@ -1,1 +1,0 @@
-Host=127.0.0.1;Port=5432;Database=rassvet_demo_2026;Username=demo_student;Password=CHANGE_ME;

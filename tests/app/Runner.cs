@@ -10,6 +10,9 @@ namespace Polesie
         [STAThread]
         private static int Main(string[] args)
         {
+            string connection = Environment.GetEnvironmentVariable("DEMO_CONNECTION");
+            if (!String.IsNullOrWhiteSpace(connection)) Db.ConnectionString = connection;
+            if (args.Length > 0 && args[0] == "--logic-test") return Checks.Run(false);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length > 0 && args[0] == "--test") return Checks.Run();

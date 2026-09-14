@@ -4,7 +4,7 @@
  <ItemGroup><Reference Include="System"/><Reference Include="System.Core"/><Reference Include="System.Data"/><Reference Include="System.Drawing"/><Reference Include="System.Windows.Forms"/><Reference Include="System.Web.Extensions"/></ItemGroup>
  <ItemGroup><Compile Include="..\shared\**\*.cs" Exclude="..\shared\UI\LoginForm*.cs;..\shared\UI\MainForm*.cs"><Link>%(RecursiveDir)%(Filename)%(Extension)</Link></Compile></ItemGroup>
  <ItemGroup><PackageReference Include="MySqlConnector" Version="2.4.0"/><PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All"/></ItemGroup>
- <ItemGroup><Content Include="Sql\*.sql"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="connection.example.txt"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="..\shared\Assets\*.png"><Link>Assets\%(Filename)%(Extension)</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>
+ <ItemGroup><Content Include="Sql\*.sql"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="..\shared\Assets\*.png"><Link>Assets\%(Filename)%(Extension)</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>
  <ItemGroup><PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0" PrivateAssets="All"/></ItemGroup>
  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
  <ItemGroup><Compile Include="..\shared\UI\LoginForm.cs"><Link>UI\LoginForm.cs</Link><SubType>Form</SubType></Compile><Compile Include="..\shared\UI\LoginForm.Designer.cs"><Link>UI\LoginForm.Designer.cs</Link><DependentUpon>LoginForm.cs</DependentUpon></Compile></ItemGroup>

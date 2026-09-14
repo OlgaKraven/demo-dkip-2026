@@ -100,7 +100,6 @@ INSERT INTO production_material VALUES(1,1,4),(1,2,0.4),(1,3,0.05);
 INSERT INTO users(login,password_hash,role) VALUES('admin','${hash('DemoAdmin!2026')}','admin'),('user','${hash('DemoUser!2026')}','user');
 `+(mysql?'':"SELECT setval(pg_get_serial_sequence('item','id'),5);\nSELECT setval(pg_get_serial_sequence('specification','id'),2);\nSELECT setval(pg_get_serial_sequence('customer_order','id'),3);\nSELECT setval(pg_get_serial_sequence('production','id'),1);\n"));
  write(`examples/${stack}/Sql/04-cost.sql`,cost);
- write(`examples/${stack}/connection.example.txt`,mysql?'Server=127.0.0.1;Port=3306;Database=rassvet_demo_2026;User ID=demo_student;Password=CHANGE_ME;\n':'Host=127.0.0.1;Port=5432;Database=rassvet_demo_2026;Username=demo_student;Password=CHANGE_ME;\n');
  write(`examples/${stack}/Polesie.csproj`,`<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
  <Import Project="$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props"/>
  <PropertyGroup><OutputType>WinExe</OutputType><TargetFrameworkVersion>v4.8</TargetFrameworkVersion><RootNamespace>Polesie</RootNamespace><AssemblyName>Polesie.${stack}</AssemblyName><OutputPath>bin\\Debug\\</OutputPath><LangVersion>7.3</LangVersion><AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects><GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType><DefineConstants>${mysql?'MYSQL':'POSTGRESQL'}</DefineConstants></PropertyGroup>
@@ -108,7 +107,7 @@ INSERT INTO users(login,password_hash,role) VALUES('admin','${hash('DemoAdmin!20
  <ItemGroup><Compile Include="..\\shared\\**\\*.cs" Exclude="..\\shared\\UI\\LoginForm*.cs;..\\shared\\UI\\MainForm*.cs"><Link>%(RecursiveDir)%(Filename)%(Extension)</Link></Compile></ItemGroup>
  ${['LoginForm','MainForm'].map(n=>`<ItemGroup><Compile Include="..\\shared\\UI\\${n}.cs"><Link>UI\\${n}.cs</Link><SubType>Form</SubType></Compile><Compile Include="..\\shared\\UI\\${n}.Designer.cs"><Link>UI\\${n}.Designer.cs</Link><DependentUpon>${n}.cs</DependentUpon></Compile></ItemGroup>`).join('\n ')}
  <ItemGroup><PackageReference Include="${mysql?'MySqlConnector':'Npgsql'}" Version="${mysql?'2.4.0':'4.1.14'}"/><PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All"/></ItemGroup>
- <ItemGroup><Content Include="Sql\\*.sql"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="connection.example.txt"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="..\\shared\\Assets\\*.png"><Link>Assets\\%(Filename)%(Extension)</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>
+ <ItemGroup><Content Include="Sql\\*.sql"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content><Content Include="..\\shared\\Assets\\*.png"><Link>Assets\\%(Filename)%(Extension)</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>
  <ItemGroup><PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0" PrivateAssets="All"/></ItemGroup>
  <Import Project="$(MSBuildToolsPath)\\Microsoft.CSharp.targets"/>
 </Project>`);

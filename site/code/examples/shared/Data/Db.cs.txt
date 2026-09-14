@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 #if MYSQL
 using MySqlConnector;
 #else
@@ -12,22 +11,25 @@ namespace Polesie
 {
     public static class Db
     {
+#if MYSQL
+        public static string ConnectionString = "Server=127.0.0.1;Port=3306;Database=rassvet_demo_2026;User ID=root;Password=;";
+#else
+        public static string ConnectionString = "Host=127.0.0.1;Port=5432;Database=rassvet_demo_2026;Username=postgres;Password=CHANGE_ME;";
+#endif
+
         public static DbConnection Open()
         {
-            string connection = Environment.GetEnvironmentVariable("DEMO_CONNECTION");
-            if (String.IsNullOrWhiteSpace(connection))
-            {
-                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "connection.local.txt");
-                if (!File.Exists(file))
-                    throw new InvalidOperationException("Создайте connection.local.txt рядом с программой по образцу connection.example.txt.");
-                connection = File.ReadAllText(file).Trim();
-            }
 #if MYSQL
-            DbConnection result = new MySqlConnection(connection);
+            DbConnection result = new MySqlConnection(ConnectionString);
 #else
-            DbConnection result = new NpgsqlConnection(connection);
+            DbConnection result = new NpgsqlConnection(ConnectionString);
 #endif
-            result.Open();
+            try { result.Open(); }
+            catch
+            {
+                result.Dispose();
+                throw;
+            }
             return result;
         }
 

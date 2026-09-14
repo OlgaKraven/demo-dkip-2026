@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+<title id="title">Как связаны заказчик, заказ и строки заказа</title><desc id="desc">Один заказчик связан со многими заказами. Один заказ связан со многими строками. Внешние ключи ссылаются на первичные ключи родительских таблиц.</desc>
+<rect width="1000" height="520" rx="16" fill="#fff"/>
+<g font-family="Arial,sans-serif" fill="#202630">
+<text x="35" y="48" font-size="26" font-weight="700">Заказчик → заказ → строки заказа</text>
+<g fill="#f2f4f7" stroke="#c4cad3" stroke-width="2"><rect x="35" y="120" width="270" height="220" rx="12"/><rect x="365" y="120" width="270" height="220" rx="12"/><rect x="695" y="120" width="270" height="220" rx="12"/></g>
+<g font-size="21" font-weight="700"><text x="55" y="155">counterparty</text><text x="385" y="155">customer_order</text><text x="712" y="155">customer_order_line</text></g>
+<g font-size="20"><text x="55" y="207">PK id</text><text x="55" y="247">name</text><text x="55" y="287">phone</text><text x="385" y="207">PK id</text><text x="385" y="247">FK customer_id</text><text x="385" y="287">doc_no, doc_date</text><text x="712" y="207">PK id</text><text x="712" y="247">FK order_id</text><text x="712" y="287">product_id, qty</text></g>
+<g stroke="#d92130" stroke-width="3"><path d="M305 227H365M635 227H695"/></g><g font-size="19" fill="#b51520"><text x="311" y="213">1 : N</text><text x="641" y="213">1 : N</text></g>
+<g font-size="20"><text x="35" y="398">customer_order.customer_id → counterparty.id</text><text x="35" y="435">customer_order_line.order_id → customer_order.id</text><text x="35" y="483" fill="#566170">PK — уникальный ключ записи. FK — ссылка на запись другой таблицы.</text></g>
+</g></svg>

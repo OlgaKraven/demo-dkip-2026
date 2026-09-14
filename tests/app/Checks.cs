@@ -57,7 +57,7 @@ namespace Polesie
                 throw new Exception("Constraint was not enforced: "+name);
             }
         }
-        public static int Run()
+        public static int Run(bool checkForms = true)
         {
             try
             {
@@ -125,33 +125,36 @@ namespace Polesie
                     Assert(Convert.ToInt32(Db.Table("SELECT COUNT(*) FROM counterparty WHERE id=@p0","audit_rollback").Rows[0][0])==0,"invalid import rolls back all rows");
                 }
                 finally { File.Delete(invalid); }
-                using(var form=new LoginForm())
+                if (checkForms)
                 {
-                    Assert(((TextBox)form.Controls.Find("password",true)[0]).UseSystemPasswordChar,"password masked");
-                    Assert(form.AcceptButton==form.Controls.Find("enter",true)[0],"enter key signs in");
-                    Assert(form.MinimumSize.Width>0&&form.MinimumSize.Height>0,"minimum form size");
-                }
-                using(var form=new MainForm(admin))
-                {
-                    Assert(((TabControl)form.Controls.Find("tabs",true)[0]).TabPages.Count==3,"admin sees all three tabs");
-                    Assert(((DataGridView)form.Controls.Find("users",true)[0]).Dock==DockStyle.Fill,"users grid resizes");
-                }
-                using(var form=new MainForm(learner))
-                    Assert(((TabControl)form.Controls.Find("tabs",true)[0]).TabPages.Count==2,"user cannot see admin page");
-                using(var puzzle=new PuzzleControl())
-                {
-                    Assert(!puzzle.IsSolved(),"puzzle starts shuffled");
-                    var order=(int[])typeof(PuzzleControl).GetField("order",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(puzzle);
-                    var select=typeof(PuzzleControl).GetMethod("SelectTile",BindingFlags.NonPublic|BindingFlags.Instance);
-                    for(int i=0;i<4;i++)if(order[i]!=i)
+                    using(var form=new LoginForm())
                     {
-                        int other=Array.IndexOf(order,i);
-                        select.Invoke(puzzle,new object[]{i});
-                        select.Invoke(puzzle,new object[]{other});
+                        Assert(((TextBox)form.Controls.Find("password",true)[0]).UseSystemPasswordChar,"password masked");
+                        Assert(form.AcceptButton==form.Controls.Find("enter",true)[0],"enter key signs in");
+                        Assert(form.MinimumSize.Width>0&&form.MinimumSize.Height>0,"minimum form size");
                     }
-                    Assert(puzzle.IsSolved(),"tile exchanges solve puzzle");
-                    puzzle.Shuffle();
-                    Assert(!puzzle.IsSolved(),"new puzzle is not already solved");
+                    using(var form=new MainForm(admin))
+                    {
+                        Assert(((TabControl)form.Controls.Find("tabs",true)[0]).TabPages.Count==3,"admin sees all three tabs");
+                        Assert(((DataGridView)form.Controls.Find("users",true)[0]).Dock==DockStyle.Fill,"users grid resizes");
+                    }
+                    using(var form=new MainForm(learner))
+                        Assert(((TabControl)form.Controls.Find("tabs",true)[0]).TabPages.Count==2,"user cannot see admin page");
+                    using(var puzzle=new PuzzleControl())
+                    {
+                        Assert(!puzzle.IsSolved(),"puzzle starts shuffled");
+                        var order=(int[])typeof(PuzzleControl).GetField("order",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(puzzle);
+                        var select=typeof(PuzzleControl).GetMethod("SelectTile",BindingFlags.NonPublic|BindingFlags.Instance);
+                        for(int i=0;i<4;i++)if(order[i]!=i)
+                        {
+                            int other=Array.IndexOf(order,i);
+                            select.Invoke(puzzle,new object[]{i});
+                            select.Invoke(puzzle,new object[]{other});
+                        }
+                        Assert(puzzle.IsSolved(),"tile exchanges solve puzzle");
+                        puzzle.Shuffle();
+                        Assert(!puzzle.IsSolved(),"new puzzle is not already solved");
+                    }
                 }
                 using(DbConnection connection=Db.Open())
                 using(DbCommand command=Db.Command(connection,"DELETE FROM users WHERE id=@p0",learner.Id)) command.ExecuteNonQuery();

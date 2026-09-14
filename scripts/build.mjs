@@ -15,7 +15,7 @@ const y=c.years[0];delete y.exercise;y.status='passport';y.contentVersion='poles
 y.mockVariants=buildVariants(out,ExamCore.zip,standalone);
 y.completeCourse=false;
 ExamCore.validateCourse(c);
-for(const f of ['index.html','style.css','practice.css','lessons.css','core.js','conditions.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
+for(const f of ['mascot-scientist.png','index.html','style.css','practice.css','lessons.css','teaching.css','teaching.js','core.js','conditions.js','content-tools.js','practice.js','course-app.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
 for(const f of ['practice','sources','screenshots','diagrams'])fs.cpSync(path.join('materials',f),path.join(out,f),{recursive:true});
 for(const stack of ['mysql','postgresql'])write(path.join(out,`downloads/polesie-${stack}-app.zip`),fs.readFileSync(`materials/applications/polesie-${stack}-app.zip`));
 write(path.join(out,'course.js'),'globalThis.COURSE='+JSON.stringify(c)+';\n');
@@ -26,7 +26,7 @@ for(const [folder,compiled,headings,prefix] of [['',lessons,toc,'lesson'],['exam
  compiled[m.id]={};
  for(const stack of ['mysql','postgresql']){
   let i=0;
-  let content=html.replace(/<div data-stack-only="(.*?)">([\s\S]*?)<\/div>/g,(_,s,t)=>s===stack?t:'')
+  let content=html.replaceAll('{{app-walkthrough}}',fs.readFileSync('lessons/app-walkthrough.html','utf8')).replace(/<div data-stack-only="(.*?)">([\s\S]*?)<\/div>/g,(_,s,t)=>s===stack?t:'')
    .replaceAll('{{schema-guide}}',schemaGuide(stack,E))
    .replaceAll('{{requirements}}',ExamConditions.format(y.practice.tasks.find(t=>t.id==='M4').supplements[0].text))
    .replaceAll('{{documentation}}',fs.readFileSync('lessons/documentation.html','utf8').replace('{{methods}}',fs.readFileSync('lessons/M5.html','utf8').match(/<table>[\s\S]*?<\/table>/)[0]).replaceAll('../screenshots/','screenshots/'))
@@ -68,6 +68,8 @@ for(const stack of ['mysql','postgresql']){
  write(path.join(out,`downloads/polesie-${stack}.zip`),ExamCore.zip(files));
 }
 write(path.join(out,'.nojekyll'),'');
+write(path.join(out,'downloads/USER_GUIDE.md'),fs.readFileSync('docs/USER_GUIDE.md'));
+write(path.join(out,'downloads/LECTURE_TEMPLATE_LICENSE.txt'),fs.readFileSync('docs/LECTURE_TEMPLATE_LICENSE.txt'));
 // Content versions prevent browsers from reusing scripts from an older release.
 const indexPath=path.join(out,'index.html');
 write(indexPath,fs.readFileSync(indexPath,'utf8').replace(/(src|href)="([^"?]+\.(?:js|css))"/g,(_,attr,file)=>{

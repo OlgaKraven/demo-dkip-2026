@@ -1,5 +1,6 @@
 {
  "repositories":[
+  {"name":"2026-lecture-shablone","url":"https://github.com/OlgaKraven/2026-lecture-shablone","commit":"dd0a0dc09e10916e3c07157677f7a1769396a110","used":"профиль преподавателя, инструкция, презентационный формат и кнопка темы с луной / солнцем"},
   {"name":"2026-demo-template","url":"https://github.com/OlgaKraven/2026-demo-template","commit":"bfa66e4f10cade7d7c4f28a11b1632108665175c","used":"оформление, режимы, карта баллов, таймеры и исходные приложения"},
   {"name":"min.demo.dkip-2025","url":"https://github.com/OlgaKraven/min.demo.dkip-2025","commit":"5fb77ab3f88a7b4b0335eaf6e5527980380284d8","used":"последовательность пяти модулей, анализ производственных документов"},
   {"name":"POSTGRESS-DEMO","url":"https://github.com/OlgaKraven/POSTGRESS-DEMO","commit":"fc7c6e3618f116e48eb6a5d4d2483efd91eb87c9","used":"маршрут PostgreSQL и числовой пример заказов 371 / 126,45 / 183,95"},

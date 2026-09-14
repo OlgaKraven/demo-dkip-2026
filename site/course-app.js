@@ -4,20 +4,17 @@ const C=ExamCore,E=C.escape,c=COURSE,year=c.years[0];
 C.validateCourse(c);
 const key='polesie-demo-2026-preferences';
 let memory={},storageAvailable=true;
-function get(k){try{return localStorage.getItem(k);}catch{storageAvailable=false;return memory[k]??null;}}
+function get(k){if(Object.hasOwn(memory,k))return memory[k];try{return localStorage.getItem(k);}catch{storageAvailable=false;return null;}}
 function set(k,v){memory[k]=v;try{localStorage.setItem(k,v);}catch{storageAvailable=false;}}
-let pref={};try{pref=JSON.parse(get(key)||'{}');}catch{}
+let pref={};try{const parsed=JSON.parse(get(key)||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))pref=parsed;}catch{}
 const query=new URLSearchParams(location.search);
 let mode=['learn','training','mock'].includes(query.get('mode')||pref.mode)?query.get('mode')||pref.mode:'learn';
 let stack=(query.get('stack')||pref.stack)==='postgresql'?'postgresql':'mysql';
 let module=year.modules.find(m=>m.id===(query.get('module')||pref.module))||year.modules[0];
 let lessonView=query.get('view')==='example'?'example':'steps';
-let dark=pref.dark===true;
-let timer,timerKey;
+let dark=typeof pref.dark==='boolean'?pref.dark:matchMedia('(prefers-color-scheme: dark)').matches;
 function save(){set(key,JSON.stringify({mode,stack,module:module.id,dark}));const u=new URL(location.href);u.searchParams.set('mode',mode);u.searchParams.set('module',module.id);u.searchParams.set('stack',stack);u.searchParams.set('view',lessonView);history.replaceState(null,'',u);}
-function loadTimer(){timerKey=C.timerKey(c,year,'worked-example',module.id,'learn');timer=C.restoreTimer(get(timerKey),module.durationSeconds,'learn');}
-function persist(){set(timerKey,JSON.stringify(timer));}
-function change(action){if((mode==='learn'&&timer.status==='running'||mode!=='learn'&&ExamPractice.isRunning())&&!confirm('Таймер продолжит идти в фоне. Перейти к другому разделу?'))return;action();loadTimer();save();render();}
+function change(action){if((mode!=='learn'&&ExamPractice.isRunning())&&!confirm('Таймер продолжит идти в фоне. Перейти к другому разделу?'))return;action();save();render();}
 function download(files,name){const u=URL.createObjectURL(new Blob([C.zip(files)],{type:'application/zip'}));const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),30000);}
 function map(){return `<section class="exam-map"><div class="map-heading"><div><span class="section-code">КОД 09.02.07-5-2026 · БАЗОВЫЙ УРОВЕНЬ</span><h2>Карта демонстрационного экзамена</h2><p>Пять модулей: от модели данных до документации</p></div><div class="map-total"><strong>50</strong><span>максимум баллов</span></div><div class="map-total"><strong>2:30</strong><span>часа на экзамен</span></div></div></section>`;}
 
@@ -26,7 +23,7 @@ function assessment(){return `<section class="module-assessment" aria-label="О�
 function submission(){return `<section class="submission-guide"><h2>Куда сохранять работу</h2><ol><li>На рабочем столе создайте папку с именем, которое сообщил эксперт. В ней сохраняйте результаты всех модулей; если папка уже подготовлена, работайте в ней.</li><li>До начала работы проверьте путь в «Сохранить как». Для тренировки можно создать папку «ДЭ_2026_Фамилия» и подпапки M1–M5. На экзамене используйте установленную организатором структуру и имена.</li><li>После каждого модуля сохраните файлы, откройте их из папки сдачи и убедитесь, что это последняя версия. Ярлык на файл не заменяет сам файл.</li><li>При онлайн-сдаче будет организовано хранилище, в которое нужно загрузить все результаты. Адрес, доступ и порядок загрузки предоставит организатор. После загрузки проверьте наличие файлов и возможность их открыть.</li></ol><p>Сохранение прогресса на этом сайте не сохраняет и не отправляет ваши SQL, PDF или C#-проект.</p></section>`;}
 
 function lesson(){return `<article class="article lesson"><span class="section-code">МОДУЛЬ ${module.number} · ПОШАГОВЫЙ РАЗБОР</span><h2>${E(module.title)}</h2><p class="subtitle">C# Windows Forms + ${stack==='mysql'?'MySQL':'PostgreSQL'} · ООО Молочный комбинат «Полесье»</p>${assessment()}<div class="lesson-route-tabs" role="group" aria-label="Раздел объяснений">${[['steps','Как сделать пошагово'],['example','Как посмотреть готовый пример']].map(([id,title])=>`<button class="btn ${lessonView===id?'active':''}" data-lesson-view="${id}" aria-pressed="${lessonView===id}">${title}</button>`).join('')}</div><h2 class="lesson-route-title">${lessonView==='steps'?'Как сделать пошагово':'Как посмотреть готовый пример'}</h2>${(lessonView==='steps'?LESSONS:EXAMPLE_LESSONS)[module.id][stack]}</article>`;}
-function aside(){return `<aside class="timer-card"><div class="timer-top"><p class="eyebrow">МОДУЛЬ ${module.number} · ${module.durationSeconds/60} МИНУТ</p><div class="timer-digits" id="clock"></div><p id="clock-status"></p><div class="timer-track"><span class="timer-fill" id="clock-fill"></span></div></div><div class="timer-body"><div class="timer-actions"><button class="btn primary" data-timer="start">Начать</button><button class="btn" data-timer="pause">Пауза</button><button class="btn" data-timer="finish">Завершить</button><button class="btn" id="reset">Сбросить</button></div><p id="elapsed" class="small"></p><p class="small">Время по КОД для всего модуля. Чтение разбора не запускает таймер автоматически.</p><h3>В этом разборе</h3><nav class="lesson-toc">${(lessonView==='steps'?LESSON_TOC:EXAMPLE_TOC)[module.id].map((t,i)=>`<a href="#${lessonView==='steps'?'lesson':'example'}-step-${i+1}">${E(t)}</a>`).join('')}</nav></div></aside>`;}
+function aside(){return `<aside class="lesson-sidebar"><h3>В этом разборе</h3><nav class="lesson-toc">${(lessonView==='steps'?LESSON_TOC:EXAMPLE_TOC)[module.id].map((t,i)=>`<a href="#${lessonView==='steps'?'lesson':'example'}-step-${i+1}">${E(t)}</a>`).join('')}</nav></aside>`;}
 function render(){
  document.body.classList.toggle('dark',dark);
  document.title='ДЭ 2026 · Специалист по информационным системам';
@@ -37,14 +34,11 @@ function render(){
  document.querySelectorAll('[data-lesson-view]').forEach(b=>b.onclick=()=>{lessonView=b.dataset.lessonView;const u=new URL(location.href);u.hash="";history.replaceState(null,"",u);save();render();document.querySelector('.lesson-route-tabs').scrollIntoView({block:'start'});});
  document.getElementById('theme').onclick=()=>{dark=!dark;save();render();};
  document.getElementById('fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.().catch(()=>{});};
- if(mode==='learn'){
-  document.querySelectorAll('[data-timer]').forEach(b=>b.onclick=()=>{timer=C.transition(timer,b.dataset.timer);persist();tick();});
-  document.getElementById('reset').onclick=()=>{if(confirm('Сбросить таймер только этого разбора?')){timer=C.freshTimer(module.durationSeconds,'learn');persist();tick();}};
- }else ExamPractice.bind({rerender:render,download,mode:next=>change(()=>{mode=next;})});
+ if(mode!=='learn') ExamPractice.bind({rerender:render,download,mode:next=>change(()=>{mode=next;})});
+ ExamTeaching.mount({get,set,module,stack,lessonView,mode,dark,toggleTheme:()=>{dark=!dark;save();render();},html:(lessonView==='steps'?LESSONS:EXAMPLE_LESSONS)[module.id][stack],course:c,year});
  tick();
 }
-function tick(){if(mode!=='learn'){ExamPractice.tick();return;}const view=C.timerView(timer);document.getElementById('clock').textContent=view.over?'+'+C.format(view.over):C.format(view.left);document.getElementById('clock-status').textContent=({idle:'Не запущен',running:'Идёт отсчёт',paused:'Пауза',finished:'Завершён'})[timer.status];document.getElementById('elapsed').textContent='Прошло: '+C.format(view.used);document.getElementById('clock-fill').style.width=(view.progress*100)+'%';document.querySelector('[data-timer="start"]').disabled=!['idle','paused'].includes(timer.status);document.querySelector('[data-timer="pause"]').disabled=timer.status!=='running';document.querySelector('[data-timer="finish"]').disabled=['idle','finished'].includes(timer.status);}
-addEventListener('pagehide',()=>{if(mode==='learn')persist();});
+function tick(){if(mode!=='learn')ExamPractice.tick();}
 setInterval(tick,500);
-loadTimer();render();
+render();
 })();

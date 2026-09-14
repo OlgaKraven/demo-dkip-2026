@@ -165,7 +165,7 @@ namespace Polesie
             this.importButton.Click += new EventHandler(this.Import);
             this.newUserButton.Click += new EventHandler(this.NewUser);
             this.saveUserButton.Click += new EventHandler(this.SaveUser);
-            this.users.CellClick += new DataGridViewCellEventHandler(this.SelectUser);
+            this.users.CellEnter += new DataGridViewCellEventHandler(this.SelectUser);
             this.Controls.Add(this.tabs);
             this.Text = "Молочный комбинат «Полесье»";
             this.Font = new Font("Segoe UI",10);

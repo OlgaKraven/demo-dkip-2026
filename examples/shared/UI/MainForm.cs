@@ -1,7 +1,5 @@
 using System;
 using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 namespace Polesie
@@ -10,6 +8,7 @@ namespace Polesie
     {
         private readonly User actor;
         private int selectedId;
+        private bool loadingUsers;
 
         public MainForm()
         {
@@ -33,6 +32,8 @@ namespace Polesie
 
         private void NewUser(object sender, EventArgs e)
         {
+            users.CurrentCell = null;
+            users.ClearSelection();
             selectedId = 0;
             login.Clear();
             password.Clear();
@@ -42,7 +43,7 @@ namespace Polesie
 
         private void SelectUser(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (loadingUsers || e.RowIndex < 0 || users.Rows[e.RowIndex].DataBoundItem == null) return;
             DataRowView row = (DataRowView)users.Rows[e.RowIndex].DataBoundItem;
             selectedId = Convert.ToInt32(row["id"]);
             login.Text = Convert.ToString(row["login"]);
@@ -54,9 +55,31 @@ namespace Polesie
         private void Reload()
         {
             customers.DataSource = Db.Table("SELECT id,name,inn,address,phone,is_salesman,is_buyer FROM counterparty ORDER BY id");
-            string sql = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "04-cost.sql"));
+            string sql = @"SELECT o.id AS order_id, o.doc_no,
+       CASE WHEN COUNT(l.id)=0 THEN 0
+            WHEN SUM(CASE WHEN s.id IS NULL OR sm.material_id IS NULL OR p.amount IS NULL THEN 1 ELSE 0 END)>0 THEN NULL
+            ELSE ROUND(SUM(l.qty / s.output_qty * sm.qty * p.amount), 2)
+       END AS material_cost
+FROM customer_order o
+LEFT JOIN customer_order_line l ON l.order_id=o.id
+LEFT JOIN specification s ON s.product_id=l.product_id
+LEFT JOIN specification_material sm ON sm.specification_id=s.id
+LEFT JOIN price p ON p.item_id=sm.material_id
+ AND p.valid_from=(SELECT MAX(p2.valid_from) FROM price p2 WHERE p2.item_id=sm.material_id AND p2.valid_from<=o.doc_date)
+GROUP BY o.id,o.doc_no
+ORDER BY o.id;";
             costs.DataSource = Db.Table(sql);
-            if (actor.Role == "admin") users.DataSource = Db.Table("SELECT id,login,role,failed_attempts,is_locked FROM users ORDER BY id");
+            if (actor.Role == "admin")
+            {
+                DataTable data = Db.Table("SELECT id,login,role,failed_attempts,is_locked FROM users ORDER BY id");
+                loadingUsers = true;
+                try
+                {
+                    users.DataSource = data;
+                    NewUser(this, EventArgs.Empty);
+                }
+                finally { loadingUsers = false; }
+            }
         }
 
         private void SaveUser(object sender, EventArgs e)
@@ -64,9 +87,9 @@ namespace Polesie
             Safe(delegate
             {
                 Users.Save(actor.Id, selectedId, login.Text, password.Text, Convert.ToString(role.SelectedItem), unlock.Checked);
-                Reload();
                 password.Clear();
                 MessageBox.Show("Пользователь сохранён", "Пользователи", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshAfterSave();
             });
         }
 
@@ -78,9 +101,18 @@ namespace Polesie
                 Safe(delegate
                 {
                     int count = ImportCustomers.Run(actor.Id, dialog.FileName);
-                    Reload();
                     MessageBox.Show("Обработано заказчиков: " + count, "Импорт", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    RefreshAfterSave();
                 });
+            }
+        }
+
+        private void RefreshAfterSave()
+        {
+            try { Reload(); }
+            catch (Exception)
+            {
+                MessageBox.Show("Данные сохранены. Таблицу обновить не удалось. Проверьте соединение и нажмите «Обновить».", "Обновление", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

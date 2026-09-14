@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace Polesie
@@ -39,7 +38,7 @@ namespace Polesie
             }
             catch (Exception)
             {
-                MessageBox.Show("Не удалось подключиться к базе. Проверьте запуск сервера, имя базы и connection.local.txt.", "Соединение", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Не удалось подключиться к базе. Проверьте запуск сервера и строку ConnectionString в Data/Db.cs. После изменения снова соберите проект.", "Соединение", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
