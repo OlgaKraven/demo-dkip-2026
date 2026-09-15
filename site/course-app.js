@@ -36,6 +36,8 @@ function render(){
  document.getElementById('fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.().catch(()=>{});};
  if(mode!=='learn') ExamPractice.bind({rerender:render,download,mode:next=>change(()=>{mode=next;})});
  ExamTeaching.mount({get,set,module,stack,lessonView,mode,dark,toggleTheme:()=>{dark=!dark;save();render();},html:(lessonView==='steps'?LESSONS:EXAMPLE_LESSONS)[module.id][stack],course:c,year});
+ ExamErGuide.mount({get,set,module,stack,mode});
+ ExamProductTour.mount();
  tick();
 }
 function tick(){if(mode!=='learn')ExamPractice.tick();}
