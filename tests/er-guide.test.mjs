@@ -5,6 +5,15 @@ import vm from 'node:vm';
 import {buildErGuide} from '../scripts/er-guide.mjs';
 import '../src/product-tour.js';
 const data=buildErGuide();
+test('walkthrough reserves final positions and wire routes on every step',()=>{
+ const context={};vm.runInNewContext(fs.readFileSync('site/er-data.js','utf8'),context);
+ const layouts=Object.values(context.ER_GUIDE.layouts),final=layouts.at(-1);
+ for(const layout of layouts){
+  assert.equal(layout.width,final.width);assert.equal(layout.height,final.height);
+  for(const node of layout.nodes)assert.deepEqual(node,final.nodes.find(n=>n.id===node.id));
+  for(const edge of layout.edges)assert.deepEqual(edge,final.edges.find(e=>e.id===edge.id));
+ }
+});
 test('all incremental layouts keep tables apart and route arrows outside table interiors',()=>{
  const context={};vm.runInNewContext(fs.readFileSync('site/er-data.js','utf8'),context);
  const layouts=Object.values(context.ER_GUIDE.layouts);assert.equal(layouts.length,60);
