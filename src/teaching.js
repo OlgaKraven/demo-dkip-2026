@@ -138,7 +138,7 @@
   const eyebrow=slide.context?slide.title:(isCode?'Код проекта':'');
   const slideHtml=slide.context?slide.html.replace(/^<h4\b[^>]*>[\s\S]*?<\/h4>/,''):slide.html;
   dialog.innerHTML=`<header class="teaching-head deck-head"><button class="btn" data-close>← К материалам преподавателя</button><span id="teaching-title">Модуль ${ctx.module.number} · ${ctx.stack==='mysql'?'MySQL':'PostgreSQL'}</span><div class="teaching-actions"><button class="btn" id="deck-detail">${deckDetail==='brief'?'Подробный разбор':'Краткий показ'}</button><button class="btn" id="deck-toc">Содержание</button><button class="btn" id="deck-theme">${ctx.dark?'Светлая':'Тёмная'} тема</button><button class="btn" id="deck-full">На весь экран</button></div></header><progress class="deck-progress" value="${slideIndex+1}" max="${slides.length}" aria-label="Прогресс презентации"></progress><article class="presentation-slide ${slide.cover?'slide-cover':''} ${isCode?'slide-code':''} ${/<img\b/.test(slide.html)?'slide-media':''}"><header class="slide-meta"><span>ДЭ 2026 · 09.02.07</span><span>${String(slideIndex+1).padStart(2,'0')}</span></header><div class="slide-body lesson" tabindex="0">${eyebrow?`<p class="slide-section">${E(eyebrow)}</p>`:''}<h2>${E(heading)}</h2>${file?`<button class="btn slide-code-open" data-preview-url="code/${E(file)}.txt">Открыть и скопировать полный файл</button>`:''}${slide.part>1?'<p class="slide-part">Продолжение · часть '+slide.part+'</p>':''}${slideHtml}</div><footer class="slide-meta"><span>${E(profile.fullName||'Разбор проекта «Полесье»')}</span><span>Модуль ${ctx.module.number} / ${ctx.lessonView==='steps'?'Пошаговый разбор':'Готовый пример'}</span></footer></article><footer class="deck-controls"><button class="btn" id="slide-prev" ${slideIndex===0?'disabled':''}>← Назад</button><span aria-live="polite">${slideIndex+1} / ${slides.length}</span><button class="btn primary" id="slide-next" ${slideIndex===slides.length-1?'disabled':''}>Вперёд →</button></footer><p class="deck-hint" role="status"></p>`;
-  root.ExamProductTour?.add('deck',dialog.querySelector('.deck-head'),'Гид');
+  root.ExamProductTour?.add('deck',dialog.querySelector('.deck-head .teaching-actions'),'Гид по презентации');
   dialog.querySelector('#deck-detail').onclick=()=>{deckDetail=deckDetail==='brief'?'full':'brief';prepareSlides();drawSlide();};
   closeButton();dialog.querySelector('#slide-prev').onclick=()=>go(slideIndex-1);dialog.querySelector('#slide-next').onclick=()=>go(slideIndex+1);
   themeButton(dialog.querySelector('#deck-theme'));
@@ -156,7 +156,7 @@
   iconButton(document.querySelector('#fullscreen'),'На весь экран',fullIcon);
   themeButton(document.querySelector('#theme'));
   if(ctx.section==='teacher'){
-   const host=document.querySelector('#teacher-actions');const launch=button('Открыть презентацию',presentation);launch.classList.add('primary');launch.id='presentation-launch';host.append(launch,button('Настройка преподавателя',settings));refreshProfile();
+   const host=document.querySelector('#teacher-actions');const launch=button('Открыть презентацию',presentation);launch.classList.add('primary');launch.id='presentation-launch';const setup=button('Настройка преподавателя',settings);setup.id='teacher-settings';host.append(launch,setup);refreshProfile();
   }
   if(dialog?.open&&kind==='deck')drawSlide();
  }
