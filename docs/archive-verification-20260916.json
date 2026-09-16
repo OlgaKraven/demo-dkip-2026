@@ -1,0 +1,14 @@
+[
+  {
+    "stack": "mysql",
+    "source": "Public source archive downloaded 2026-09-16",
+    "build": "PASS .NET Framework 4.8",
+    "result": "PASS: 52 checks; costs 371.00 / 126.45 / 183.95; customers 6"
+  },
+  {
+    "stack": "postgresql",
+    "source": "Public source archive downloaded 2026-09-16",
+    "build": "PASS .NET Framework 4.8",
+    "result": "PASS: 52 checks; costs 371.00 / 126.45 / 183.95; customers 6"
+  }
+]

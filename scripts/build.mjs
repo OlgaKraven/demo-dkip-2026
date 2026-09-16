@@ -5,6 +5,7 @@ import {schemaGuide} from './schema-guide.mjs';
 import {buildErGuide} from './er-guide.mjs';
 import {buildErLayouts} from './er-layout.mjs';
 import {buildVariants} from './mock-variants.mjs';
+import {appGuide} from './app-guide.mjs';
 import '../src/core.js';
 const root=path.resolve(import.meta.dirname,'..');
 process.chdir(root);
@@ -14,7 +15,7 @@ const write=(p,s)=>{fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileS
 for(const f of ['er-guide.js','er-guide.css','product-tour.js','student-ui.css','study-steps.js','programs.js','resource-viewer.js','resources.css'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
 const erData=buildErGuide();erData.layouts=await buildErLayouts(erData);
 write(path.join(out,'er-data.js'),'globalThis.ER_GUIDE='+JSON.stringify(erData)+';\n');
-const programGuides=JSON.parse(fs.readFileSync('content/program-guides.json','utf8'));for(const guide of Object.values(programGuides))for(const step of guide.steps)if(step.codeFile)step.code=fs.readFileSync(step.codeFile,'utf8');
+const programGuides=JSON.parse(fs.readFileSync('content/program-guides.json','utf8'));for(const guide of Object.values(programGuides))for(const step of guide.steps){if(step.codeFile)step.code=fs.readFileSync(step.codeFile,'utf8');step.files=(step.codeFiles||[]).map(file=>({file,code:fs.readFileSync(file,'utf8')}));}
 write(path.join(out,'program-data.js'),'globalThis.PROGRAM_GUIDES='+JSON.stringify(programGuides)+';');
 write(path.join(out,'file-previews.js'),'globalThis.FILE_PREVIEWS='+fs.readFileSync('content/file-previews.json','utf8')+';');
 const presentationGuides=JSON.parse(fs.readFileSync('content/presentation-guides.json','utf8')),presentations={};
@@ -45,7 +46,7 @@ for(const stack of ['mysql','postgresql'])write(path.join(out,`downloads/polesie
 write(path.join(out,'course.js'),'globalThis.COURSE='+JSON.stringify(c)+';\n');
 const lessons={},toc={},examples={},exampleToc={};
 for(const [folder,compiled,headings,prefix] of [['',lessons,toc,'lesson'],['examples/',examples,exampleToc,'example']])for(const m of y.modules){
- const html=fs.readFileSync(`lessons/${folder}${m.id}.html`,'utf8');
+ const html=fs.readFileSync(`lessons/${folder}${m.id}.html`,'utf8').replaceAll('{{full-app-guide}}',appGuide(programGuides.visualstudio,E));
  headings[m.id]=[...html.matchAll(/<h3>(.*?)<\/h3>/g)].map(m=>m[1]);
  compiled[m.id]={};
  for(const stack of ['mysql','postgresql']){
@@ -71,7 +72,8 @@ write(path.join(out,'gallery.html'),'<!doctype html><html lang="ru"><meta charse
 const sources=JSON.parse(fs.readFileSync('docs/sources.json','utf8'));
 write(path.join(out,'sources.html'),standalone('Источники и адаптация к 2026 году',`<p>Основа интерфейса — утверждённый шаблон. Основной маршрут соответствует только базовому уровню КОД 09.02.07-5-2026.</p><ul>${sources.repositories.map(r=>`<li><a href="${r.url}">${E(r.name)}</a> · ${E(r.used)} · версия <code>${r.commit.slice(0,8)}</code></li>`).join('')}</ul><h2>Что исправлено</h2><ul>${sources.changes.map(s=>'<li>'+E(s)+'</li>').join('')}</ul><p><a href="sources/2026.pdf">Официальный документ из переданного комплекта</a>. Исходный JSON и картинки капчи сохранены. Данные продуктов и заказов в разборе учебные; они не объявляются официальным решением.</p>`));
 const results=JSON.parse(fs.readFileSync('docs/integration-results.json','utf8'));
-write(path.join(out,'verification.html'),standalone('Проверка примеров',`<p>Проверены сборка C# и выполнение запросов на отдельных тестовых серверах.</p><ul>${results.map(r=>`<li>${r.server}: ${E(r.result)}</li>`).join('')}</ul><p>Проверки включают расчёт, хэши, роли, дубли логина, три ошибки, сохранение блокировки, разблокировку, смену логина и пароля, сброс счётчика, повторный импорт и сохранность исходных строк.</p><p>Это проверка комплектов примеров. Сайт не выполняет и не оценивает пользовательские решения.</p>`));
+const archiveChecks=JSON.parse(fs.readFileSync('docs/archive-verification-20260916.json','utf8'));
+write(path.join(out,'verification.html'),standalone('Проверка примеров',`<p>16 сентября 2026 года скачаны публичные архивы полных проектов, распакованы в отдельные папки и собраны в .NET Framework 4.8.</p><ul>${archiveChecks.map(r=>`<li><strong>${E(r.stack)}</strong>: ${E(r.build)}; ${E(r.result)}</li>`).join('')}</ul><p>Проверены вход, роли, блокировка, импорт JSON, ограничения базы, расчёт и создание всех форм. Архивы требуют собственного сервера базы и настройки ConnectionString.</p><h2>Дополнительные проверки примеров</h2><ul>${results.map(r=>`<li>${r.server}: ${E(r.result)}</li>`).join('')}</ul><p>Проверки включают расчёт, хэши, роли, дубли логина, три ошибки, сохранение блокировки, разблокировку, смену логина и пароля, сброс счётчика, повторный импорт и сохранность исходных строк.</p><p>Это проверка комплектов примеров. Сайт не выполняет и не оценивает пользовательские решения.</p>`));
 const documents={};
 for(const stack of ['mysql','postgresql']){
  const fragment=fs.readFileSync('lessons/documentation.html','utf8').replaceAll('{{stack}}',stack).replaceAll('{{stackLabel}}',stack==='mysql'?'MySQL':'PostgreSQL').replace('{{methods}}',fs.readFileSync('lessons/M5.html','utf8').match(/<table>[\s\S]*?<\/table>/)[0]);

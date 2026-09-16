@@ -79,7 +79,7 @@ test('M4 walkthrough covers all four screens in both routes and stacks',()=>{
   const html=route.M4[stack];
   assert.doesNotMatch(html,/\{\{app-walkthrough\}\}/);
   for(const name of ['login','customers','costs','users'])assert.match(html,new RegExp('screenshots/'+stack+'/'+name+'\\.png'));
-  for(const action of ['Новый пользователь:','Разблокировка:','Изменение пользователя:'])assert.ok(html.includes(action));
+  for(const action of ['Новый пользователь','Снять блокировку','Сохранить'])assert.ok(html.includes(action));
  }
  for(const stack of ['mysql','postgresql'])assert.ok(data.LESSONS.M1[stack].includes('diagrams/order-links.svg'));
 });

@@ -24,7 +24,7 @@ test('program walkthroughs have usable steps, existing screenshots and working l
   assert.ok(step.title&&step.goal&&step.actions.length&&step.check);
   for(const url of [step.image,step.link?.url].filter(Boolean)){
    if(url.startsWith('?'))continue;
-   assert.ok(fs.existsSync(path.join('site',decodeURIComponent(url))),url);
+   for(const stack of ['mysql','postgresql'])assert.ok(fs.existsSync(path.join('site',decodeURIComponent(url.replaceAll('{{stack}}',stack)))),url);
   }
  }
  assert.ok(guides.phpmyadmin.steps.some(s=>s.catalog));
