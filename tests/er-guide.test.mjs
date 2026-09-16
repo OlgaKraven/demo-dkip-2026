@@ -1,9 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import vm from 'node:vm';
 import {buildErGuide} from '../scripts/er-guide.mjs';
 import '../src/product-tour.js';
 const data=buildErGuide();
+test('all incremental layouts keep tables apart and route arrows outside table interiors',()=>{
+ const context={};vm.runInNewContext(fs.readFileSync('site/er-data.js','utf8'),context);
+ const layouts=Object.values(context.ER_GUIDE.layouts);assert.equal(layouts.length,60);
+ for(const layout of layouts){for(let i=0;i<layout.nodes.length;i++)for(let j=i+1;j<layout.nodes.length;j++){const a=layout.nodes[i],b=layout.nodes[j];assert.ok(a.x+a.width<=b.x||b.x+b.width<=a.x||a.y+a.height<=b.y||b.y+b.height<=a.y,'Overlapping tables');}
+ for(const e of layout.edges)for(const s of e.sections){const p=[s.startPoint,...(s.bendPoints||[]),s.endPoint];for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i];for(const n of layout.nodes){const inside=a.x===b.x?a.x>n.x+1&&a.x<n.x+n.width-1&&Math.max(a.y,b.y)>n.y+1&&Math.min(a.y,b.y)<n.y+n.height-1:a.y>n.y+1&&a.y<n.y+n.height-1&&Math.max(a.x,b.x)>n.x+1&&Math.min(a.x,b.x)<n.x+n.width-1;assert.ok(!inside,'Arrow crosses '+n.id);}}}}
+});
 test('tour places the coach next to its target and keeps it on screen',()=>{
  const desktop=ExamProductTour.placement({left:100,right:400,top:180,bottom:230},390,250,1440,900);
  assert.equal(desktop.left,416);assert.equal(desktop.top,180);

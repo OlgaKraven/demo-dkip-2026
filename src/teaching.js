@@ -124,9 +124,11 @@
  function presentation(){prepareSlides();open('deck');drawSlide();}
  function go(index){slideIndex=Math.max(0,Math.min(slides.length-1,index));ctx.set(positionKey,String(slideIndex));drawSlide();dialog.querySelector('.slide-body').focus();}
  function drawSlide(){
+  if(root.ExamProductTour?.active())root.ExamProductTour.close();
   const slide=slides[slideIndex];
   const slideHtml=slide.context?slide.html.replace(/^<h4\b[^>]*>[\s\S]*?<\/h4>/,''):slide.html;
   dialog.innerHTML=`<header class="teaching-head deck-head"><button class="btn" data-close>← К разбору</button><span id="teaching-title">Модуль ${ctx.module.number} · ${ctx.stack==='mysql'?'MySQL':'PostgreSQL'}</span><div class="teaching-actions"><button class="btn" id="deck-toc">Содержание</button><button class="btn" id="deck-theme">${ctx.dark?'Светлая':'Тёмная'} тема</button><button class="btn" id="deck-full">На весь экран</button></div></header><progress class="deck-progress" value="${slideIndex+1}" max="${slides.length}" aria-label="Прогресс презентации"></progress><article class="presentation-slide ${slide.cover?'slide-cover':''} ${/<img\b/.test(slide.html)?'slide-media':''}"><header class="slide-meta"><span>ДЭ 2026 · 09.02.07</span><span>${String(slideIndex+1).padStart(2,'0')}</span></header><div class="slide-body lesson" tabindex="0"><h2>${E(slide.context||slide.title)}</h2>${slide.part>1?'<p class="slide-part">Продолжение · часть '+slide.part+'</p>':''}${slideHtml}</div><footer class="slide-meta"><span>${E(profile.fullName||'Разбор проекта «Полесье»')}</span><span>Модуль ${ctx.module.number} / ${ctx.lessonView==='steps'?'Пошаговый разбор':'Готовый пример'}</span></footer></article><footer class="deck-controls"><button class="btn" id="slide-prev" ${slideIndex===0?'disabled':''}>← Назад</button><span aria-live="polite">${slideIndex+1} / ${slides.length}</span><button class="btn primary" id="slide-next" ${slideIndex===slides.length-1?'disabled':''}>Вперёд →</button></footer><p class="deck-hint" role="status"></p>`;
+  root.ExamProductTour?.add('deck',dialog.querySelector('.deck-head'),'Гид');
   closeButton();dialog.querySelector('#slide-prev').onclick=()=>go(slideIndex-1);dialog.querySelector('#slide-next').onclick=()=>go(slideIndex+1);
   themeButton(dialog.querySelector('#deck-theme'));
   iconButton(dialog.querySelector('#deck-full'),'На весь экран',fullIcon);
