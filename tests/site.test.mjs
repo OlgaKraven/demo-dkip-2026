@@ -9,6 +9,21 @@ test('every lesson download, code file and image exists',()=>{for(const lesson o
 test('two distinct source archives and eight real form captures',()=>{for(const s of ['mysql','postgresql']){assert.ok(fs.statSync(`site/downloads/polesie-${s}.zip`).size>100000);for(const p of ['login','customers','costs','users'])assert.ok(fs.statSync(`site/screenshots/${s}/${p}.png`).size>10000);}});
 test('practice and mock use source tasks, preserve different timer rules',()=>{const get=()=>null,set=()=>{};const training=ExamPractice.render({c,year:y,mode:'training',get,set});assert.match(training,/Моя тренировка/);assert.match(training,/20 минут/);const mock=ExamPractice.render({c,year:y,mode:'mock',get,set});assert.match(mock,/150 минут/);assert.doesNotMatch(mock,/id="practice-pause"/);assert.match(mock,/Перед началом/);});
 test('frozen sample assets and original source PDF exist',()=>{for(const t of y.practice.tasks){assert.ok(fs.existsSync('site/'+t.zip));for(const f of t.files)assert.ok(fs.existsSync('site/'+f.url));}assert.ok(fs.existsSync('site/'+y.source.url));});
+test('program walkthroughs have usable steps, existing screenshots and working local resources',()=>{
+ const guides=JSON.parse(fs.readFileSync('content/program-guides.json','utf8'));
+ for(const guide of Object.values(guides))for(const step of guide.steps){
+  assert.ok(step.title&&step.goal&&step.actions.length&&step.check);
+  for(const url of [step.image,step.link?.url].filter(Boolean)){
+   if(url.startsWith('?'))continue;
+   assert.ok(fs.existsSync(path.join('site',decodeURIComponent(url))),url);
+  }
+ }
+ assert.ok(guides.phpmyadmin.steps.some(s=>s.catalog));
+ assert.ok(guides.phpmyadmin.steps.some(s=>s.image?.endsWith('14-foreign-keys.png')));
+ assert.match(JSON.stringify(guides.sql),/371,00.*126,45.*183,95/);
+ assert.match(JSON.stringify(guides.visualstudio),/\.NET Framework 4\.8/);
+ for(const name of ['programs','study-steps'])new vm.Script(fs.readFileSync('src/'+name+'.js','utf8'));
+});
 test('30 complete mock variants have valid references, prices and distinct calculations',()=>{
  const variants=makeVariants(),totals=new Set();assert.equal(variants.length,30);assert.equal(y.mockVariants.length,30);
  for(const v of variants){
