@@ -1,16 +1,16 @@
 /* Presentation and instructor profile for the existing static course. */
 (function(root){
  'use strict';
- const profileKey='polesie-teacher-v1';
- const fields={fullName:'ФИО преподавателя',position:'Должность',department:'Кафедра / подразделение',organization:'Учебное заведение',materialsUrl:'Ссылка на материалы'};
- let ctx,profile={},dialog,kind='',slides=[],slideIndex=0,positionKey='',returnFocus;
+ const profileKey='polesie-teacher-v2',materialsUrl='https://disk.yandex.ru/d/h3QUsGWcrr_tsQ';
+ const fields={fullName:'ФИО преподавателя',position:'Должность',department:'Кафедра / подразделение',materialsUrl:'Ссылка на материалы'};
+ let ctx,profile={},dialog,kind='',slides=[],slideIndex=0,positionKey='',returnFocus,deckDetail='brief';
  const E=value=>root.ExamCore.escape(value);
  function normalizeProfile(value){
   if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('Ожидается объект с данными преподавателя.');
   const result={};
   for(const key of Object.keys(fields)){
    if(value[key]!=null&&typeof value[key]!=='string')throw new Error('Поле «'+fields[key]+'» должно быть текстом.');
-   result[key]=(value[key]||'').trim();
+   result[key]=(value[key]||(key==='materialsUrl'?materialsUrl:'')).trim();
    if(result[key].length>(key==='materialsUrl'?2000:200))throw new Error('Слишком длинное поле: '+fields[key]);
   }
   if(result.materialsUrl){let url;try{url=new URL(result.materialsUrl);}catch{throw new Error('Введите полный адрес материалов: https://…');}
@@ -19,8 +19,8 @@
   }
   return result;
  }
- function readProfile(){try{return normalizeProfile(JSON.parse(ctx.get(profileKey)||'{}'));}catch{return normalizeProfile({});}}
- function profileHtml(){return `<div class="instructor-card"><span class="eyebrow">ПРЕПОДАВАТЕЛЬ</span><strong>${E(profile.fullName||'Добавьте данные перед занятием')}</strong>${[profile.position,profile.department,profile.organization].filter(Boolean).map(x=>'<span>'+E(x)+'</span>').join('')}${profile.materialsUrl?`<a href="${E(profile.materialsUrl)}" target="_blank" rel="noopener noreferrer">Открыть материалы ↗</a>`:''}</div>`;}
+ function readProfile(){try{const saved=ctx.get(profileKey),data=JSON.parse(saved||ctx.get('polesie-teacher-v1')||'{}');if(!saved)data.materialsUrl=materialsUrl;return normalizeProfile(data);}catch{return normalizeProfile({});}}
+ function profileHtml(){return `<div class="instructor-card"><span class="eyebrow">ПРЕПОДАВАТЕЛЬ</span><strong>${E(profile.fullName||'Добавьте данные перед занятием')}</strong>${[profile.position,profile.department].filter(Boolean).map(x=>'<span>'+E(x)+'</span>').join('')}${profile.materialsUrl?`<a href="${E(profile.materialsUrl)}" target="_blank" rel="noopener noreferrer">Открыть материалы ↗</a>`:''}</div>`;}
  function button(label,handler){const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=label;b.onclick=handler;return b;}
  function iconButton(b,label,paths){b.className='icon-button theme-button';b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths+'</svg>';return b;}
  const fullIcon='<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>';
@@ -47,7 +47,7 @@
  function closeButton(){dialog.querySelector('[data-close]').onclick=()=>dialog.close();}
  function settings(){
   open('profile');
-  dialog.innerHTML=`<header class="teaching-head"><h2 id="teaching-title">Настройка перед занятием</h2><button class="btn" data-close aria-label="Закрыть настройки">Закрыть</button></header><p>Данные появятся на главной странице и титульных слайдах. Сохранение действует в этом браузере.</p><form id="teacher-form" class="teacher-form">${Object.entries(fields).map(([key,label])=>`<label>${label}<input name="${key}" type="${key==='materialsUrl'?'url':'text'}" maxlength="${key==='materialsUrl'?2000:200}" value="${E(profile[key])}" placeholder="${key==='materialsUrl'?'https://…':''}" autocomplete="${key==='fullName'?'name':key==='organization'?'organization':'off'}"></label>`).join('')}<p class="small">Ссылка открывает вашу папку материалов; файлы на сайт не загружаются. Все поля необязательны.</p><p id="teacher-message" role="status" aria-live="polite"></p><div class="teaching-actions"><button class="btn primary" type="submit">Сохранить настройки</button><button class="btn" type="button" id="teacher-export">Скачать данные</button><label class="btn file-label">Загрузить данные<input id="teacher-import" type="file" accept="application/json,.json"></label></div></form>`;
+  dialog.innerHTML=`<header class="teaching-head"><h2 id="teaching-title">Настройка перед занятием</h2><button class="btn" data-close aria-label="Закрыть настройки">Закрыть</button></header><p>Данные появятся в разделе преподавателя и на титульных слайдах. Сохранение действует в этом браузере.</p><form id="teacher-form" class="teacher-form">${Object.entries(fields).map(([key,label])=>`<label>${label}<input name="${key}" type="${key==='materialsUrl'?'url':'text'}" maxlength="${key==='materialsUrl'?2000:200}" value="${E(profile[key])}" placeholder="${key==='materialsUrl'?'https://…':''}" autocomplete="${key==='fullName'?'name':'off'}"></label>`).join('')}<p class="small">Ссылка открывает вашу папку материалов; файлы на сайт не загружаются. Все поля необязательны.</p><p id="teacher-message" role="status" aria-live="polite"></p><div class="teaching-actions"><button class="btn primary" type="submit">Сохранить настройки</button><button class="btn" type="button" id="teacher-export">Скачать данные</button><label class="btn file-label">Загрузить данные<input id="teacher-import" type="file" accept="application/json,.json"></label></div></form>`;
   closeButton();
   const form=dialog.querySelector('form'),message=dialog.querySelector('#teacher-message');
   const formProfile=()=>normalizeProfile(Object.fromEntries(new FormData(form)));
@@ -79,19 +79,19 @@
     const label=node.classList.contains('code-source')?heading.textContent.split(' · ')[0]:sourceLabel;
     [...node.childNodes].filter(x=>x.nodeName!=='SUMMARY').forEach(x=>expand(x,label));return;
    }
-   if(node.matches('section,div')&&node.querySelector('table,pre,h2,h3,details,figure')){[...node.childNodes].forEach(x=>expand(x,sourceLabel));return;}
+   if(node.matches('section,div')&&node.querySelector('table,pre,h2,h3,h4,details,figure')){[...node.childNodes].forEach(x=>expand(x,sourceLabel));return;}
    if(node.matches('pre')&&node.querySelector('code')){
     const lines=node.querySelector('code').textContent.replace(/\r\n/g,'\n').split('\n');
-    for(let i=0;i<lines.length;i+=14){const pre=doc.createElement('pre'),code=doc.createElement('code');code.textContent=lines.slice(i,i+14).join('\n');pre.append(code);pre.setAttribute('data-code-lines',(i+1)+'–'+Math.min(i+14,lines.length));pre.setAttribute('data-code-file',sourceLabel);atoms.push(pre);}return;
+    for(let i=0;i<lines.length;i+=17){const pre=doc.createElement('pre'),code=doc.createElement('code');code.textContent=lines.slice(i,i+17).join('\n');pre.append(code);pre.setAttribute('data-code-lines',(i+1)+'–'+Math.min(i+17,lines.length));pre.setAttribute('data-code-file',sourceLabel);atoms.push(pre);}return;
    }
    if(node.matches('table')){
     const rows=[...node.querySelectorAll('tbody > tr')];
-    if(rows.length>3){for(let i=0;i<rows.length;i+=3){const copy=node.cloneNode(true);copy.querySelectorAll('tbody').forEach(x=>x.remove());if(i+3<rows.length)copy.querySelectorAll('tfoot').forEach(x=>x.remove());const body=doc.createElement('tbody');rows.slice(i,i+3).forEach(x=>body.append(x.cloneNode(true)));copy.append(body);copy.setAttribute('data-table-rows',(i+1)+'–'+Math.min(i+3,rows.length));atoms.push(copy);}return;}
+    if(rows.length>5){for(let i=0;i<rows.length;i+=5){const copy=node.cloneNode(true);copy.querySelectorAll('tbody').forEach(x=>x.remove());if(i+5<rows.length)copy.querySelectorAll('tfoot').forEach(x=>x.remove());const body=doc.createElement('tbody');rows.slice(i,i+5).forEach(x=>body.append(x.cloneNode(true)));copy.append(body);copy.setAttribute('data-table-rows',(i+1)+'–'+Math.min(i+5,rows.length));atoms.push(copy);}return;}
    }
    if(node.matches('ol,ul')&&[...node.childNodes].every(x=>x.nodeName==='LI'||!x.textContent.trim())){
     const items=[...node.children];let batch=[],length=0,start=Number(node.getAttribute('start'))||1;
     const emit=()=>{if(!batch.length)return;const list=node.cloneNode(false);if(node.nodeName==='OL')list.setAttribute('start',String(start));batch.forEach(x=>list.append(x.cloneNode(true)));atoms.push(list);start+=batch.length;batch=[];length=0;};
-    for(const item of items){if(batch.length&&(batch.length===3||length+item.textContent.length>620))emit();batch.push(item);length+=item.textContent.length;}emit();return;
+    for(const item of items){if(batch.length&&(batch.length===4||length+item.textContent.length>650))emit();batch.push(item);length+=item.textContent.length;}emit();return;
    }
    atoms.push(node);
   }
@@ -100,25 +100,32 @@
   for(const node of atoms){
    if(node.nodeType===3&&!node.textContent.trim())continue;
    if(['H1','H2','H3'].includes(node.nodeName)){flush();title=node.textContent;part=1;context='';continue;}
-   const size=node.textContent.length,large=node.nodeType===1&&(node.matches('table,figure,pre,ol,ul,img,svg')||node.querySelector('img,svg'));
+   const size=node.textContent.length,large=node.nodeType===1&&(node.matches('table,figure,pre,img,svg')||node.querySelector('img,svg'));
    if(node.nodeType===1&&node.matches('img,figure,svg')){if(blocks.length!==1||!/^<h4\b/i.test(blocks[0]))flush();blocks.push(node.outerHTML);flush();continue;}
    if(node.nodeName==='H4'){if(blocks.length)flush();context=node.textContent;part=1;}
-   const onlyHeading=blocks.length===1&&/^<h4\b/i.test(blocks[0]);
-   if(blocks.length&&!onlyHeading&&(weight+size>650||large))flush();
+   const onlyHeading=blocks.every(b=>/^<h4\b|^<p class="code-actions"/i.test(b));
+   if(blocks.length&&!onlyHeading&&(weight+size>800||large))flush();
    blocks.push(node.outerHTML||E(node.textContent));weight+=size;
-   if(large||weight>650)flush();
+   if(large||weight>800)flush();
   }
   flush();return result;
  }
  function prepareSlides(){
   const name=ctx.module.title,stackName=ctx.stack==='mysql'?'MySQL':'PostgreSQL';
-  const content=lessonSlides(ctx.html);
+  const seenFiles=new Set();
+  const detailed=lessonSlides(ctx.html).filter(slide=>{
+   const file=slide.html.match(/data-code-file="(examples\/[^\"]+)"/)?.[1];
+   if(!file)return true;
+   // A file gets one introduction slide; the complete source opens in the viewer.
+   if(seenFiles.has(file))return false;seenFiles.add(file);return true;
+  });
+  const content=deckDetail==='brief'?root.PRESENTATION_GUIDES[ctx.module.id][ctx.stack]:detailed;
   const steps=[...new Map(content.map(x=>[x.title,x])).values()];
   slides=[{title:name,cover:true,html:`<p class="slide-intro">${ctx.lessonView==='steps'?'Как сделать пошагово':'Как посмотреть готовый пример'}</p><p>C# Windows Forms + ${stackName}</p>${profileHtml()}`},
    {title:'Материалы для занятия',html:`<p>Работаем с документами и примерами выбранного модуля.</p><ul><li><a href="practice/2026/sample.zip" download>Исходные задания и приложения 2026</a></li><li><a href="downloads/polesie-${ctx.stack}.zip" download>Полный C#‑пример · ${stackName}</a></li><li><a href="sources/2026.pdf" target="_blank" rel="noopener">КОД 09.02.07-5-2026 · исходный документ</a></li>${profile.materialsUrl?`<li><a href="${E(profile.materialsUrl)}" target="_blank" rel="noopener noreferrer">Материалы преподавателя</a></li>`:''}</ul>`},
-   {title:'Что разберём',html:'<ol class="slide-agenda">'+steps.map(step=>`<li>${E(step.title)}</li>`).join('')+'</ol>'},...content,
+   ...Array.from({length:Math.ceil(steps.length/8)},(_,i)=>({title:'Маршрут занятия'+(i?' · продолжение':''),html:'<ol class="slide-agenda" start="'+(i*8+1)+'">'+steps.slice(i*8,i*8+8).map(step=>`<li>${E(step.title)}</li>`).join('')+'</ol>'})),...content,
    {title:'Вопросы и обсуждение',cover:true,html:'<p class="slide-intro">Какой шаг стоит повторить вместе?</p><ul><li>Объясните назначение разобранных элементов.</li><li>Покажите результат в своём проекте.</li><li>Назовите способ проверить его правильность.</li></ul>'}];
-  positionKey=['polesie-slide-v2',ctx.year.contentVersion,ctx.module.id,ctx.stack,ctx.lessonView].join(':');
+  positionKey=['polesie-slide-v3',ctx.year.contentVersion,ctx.module.id,ctx.stack,ctx.lessonView,deckDetail].join(':');
   const stored=Number(ctx.get(positionKey));slideIndex=Number.isInteger(stored)?Math.max(0,Math.min(slides.length-1,stored)):0;
  }
  function presentation(){prepareSlides();open('deck');drawSlide();}
@@ -126,9 +133,13 @@
  function drawSlide(){
   if(root.ExamProductTour?.active())root.ExamProductTour.close();
   const slide=slides[slideIndex];
+  const file=slide.html.match(/data-code-file="(examples\/[^"]+)"/)?.[1],isCode=/<pre\b/.test(slide.html);
+  const heading=isCode&&file?'Разбираем '+file.split('/').pop():(slide.context||slide.title);
+  const eyebrow=slide.context?slide.title:(isCode?'Код проекта':'');
   const slideHtml=slide.context?slide.html.replace(/^<h4\b[^>]*>[\s\S]*?<\/h4>/,''):slide.html;
-  dialog.innerHTML=`<header class="teaching-head deck-head"><button class="btn" data-close>← К материалам преподавателя</button><span id="teaching-title">Модуль ${ctx.module.number} · ${ctx.stack==='mysql'?'MySQL':'PostgreSQL'}</span><div class="teaching-actions"><button class="btn" id="deck-toc">Содержание</button><button class="btn" id="deck-theme">${ctx.dark?'Светлая':'Тёмная'} тема</button><button class="btn" id="deck-full">На весь экран</button></div></header><progress class="deck-progress" value="${slideIndex+1}" max="${slides.length}" aria-label="Прогресс презентации"></progress><article class="presentation-slide ${slide.cover?'slide-cover':''} ${/<img\b/.test(slide.html)?'slide-media':''}"><header class="slide-meta"><span>ДЭ 2026 · 09.02.07</span><span>${String(slideIndex+1).padStart(2,'0')}</span></header><div class="slide-body lesson" tabindex="0"><h2>${E(slide.context||slide.title)}</h2>${slide.part>1?'<p class="slide-part">Продолжение · часть '+slide.part+'</p>':''}${slideHtml}</div><footer class="slide-meta"><span>${E(profile.fullName||'Разбор проекта «Полесье»')}</span><span>Модуль ${ctx.module.number} / ${ctx.lessonView==='steps'?'Пошаговый разбор':'Готовый пример'}</span></footer></article><footer class="deck-controls"><button class="btn" id="slide-prev" ${slideIndex===0?'disabled':''}>← Назад</button><span aria-live="polite">${slideIndex+1} / ${slides.length}</span><button class="btn primary" id="slide-next" ${slideIndex===slides.length-1?'disabled':''}>Вперёд →</button></footer><p class="deck-hint" role="status"></p>`;
+  dialog.innerHTML=`<header class="teaching-head deck-head"><button class="btn" data-close>← К материалам преподавателя</button><span id="teaching-title">Модуль ${ctx.module.number} · ${ctx.stack==='mysql'?'MySQL':'PostgreSQL'}</span><div class="teaching-actions"><button class="btn" id="deck-detail">${deckDetail==='brief'?'Подробный разбор':'Краткий показ'}</button><button class="btn" id="deck-toc">Содержание</button><button class="btn" id="deck-theme">${ctx.dark?'Светлая':'Тёмная'} тема</button><button class="btn" id="deck-full">На весь экран</button></div></header><progress class="deck-progress" value="${slideIndex+1}" max="${slides.length}" aria-label="Прогресс презентации"></progress><article class="presentation-slide ${slide.cover?'slide-cover':''} ${isCode?'slide-code':''} ${/<img\b/.test(slide.html)?'slide-media':''}"><header class="slide-meta"><span>ДЭ 2026 · 09.02.07</span><span>${String(slideIndex+1).padStart(2,'0')}</span></header><div class="slide-body lesson" tabindex="0">${eyebrow?`<p class="slide-section">${E(eyebrow)}</p>`:''}<h2>${E(heading)}</h2>${file?`<button class="btn slide-code-open" data-preview-url="code/${E(file)}.txt">Открыть и скопировать полный файл</button>`:''}${slide.part>1?'<p class="slide-part">Продолжение · часть '+slide.part+'</p>':''}${slideHtml}</div><footer class="slide-meta"><span>${E(profile.fullName||'Разбор проекта «Полесье»')}</span><span>Модуль ${ctx.module.number} / ${ctx.lessonView==='steps'?'Пошаговый разбор':'Готовый пример'}</span></footer></article><footer class="deck-controls"><button class="btn" id="slide-prev" ${slideIndex===0?'disabled':''}>← Назад</button><span aria-live="polite">${slideIndex+1} / ${slides.length}</span><button class="btn primary" id="slide-next" ${slideIndex===slides.length-1?'disabled':''}>Вперёд →</button></footer><p class="deck-hint" role="status"></p>`;
   root.ExamProductTour?.add('deck',dialog.querySelector('.deck-head'),'Гид');
+  dialog.querySelector('#deck-detail').onclick=()=>{deckDetail=deckDetail==='brief'?'full':'brief';prepareSlides();drawSlide();};
   closeButton();dialog.querySelector('#slide-prev').onclick=()=>go(slideIndex-1);dialog.querySelector('#slide-next').onclick=()=>go(slideIndex+1);
   themeButton(dialog.querySelector('#deck-theme'));
   iconButton(dialog.querySelector('#deck-full'),'На весь экран',fullIcon);

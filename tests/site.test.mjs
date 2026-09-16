@@ -5,10 +5,19 @@ const sandbox={};vm.runInNewContext(fs.readFileSync('site/course.js','utf8')+fs.
 const {COURSE:c,LESSONS:lessons}=sandbox,y=c.years[0];
 test('only verified 2026 basic level and five modules',()=>{assert.equal(c.years.length,1);assert.equal(y.year,2026);assert.equal(y.modules.length,5);assert.equal(y.totalSeconds,9000);assert.equal(y.assessment.maxPoints,50);assert.equal(y.assessment.criteria.reduce((s,r)=>s+r.points,0),50);ExamCore.validateCourse(c);});
 test('all modules have substantial stepwise explanations for both stacks',()=>{for(const m of y.modules)for(const s of ['mysql','postgresql']){const html=lessons[m.id][s];assert.ok(html.length>4000);assert.ok((html.match(/<h3/g)||[]).length>=7);assert.doesNotMatch(html,/\{\{(?:code|stack)/);assert.doesNotMatch(html,/data-stack-only/);}});
-test('every lesson download, code file and image exists',()=>{for(const lesson of Object.values(lessons))for(const html of Object.values(lesson))for(const m of html.matchAll(/(?:src|href)="([^"]+)"/g)){const u=m[1];if(/^(#|https?:)/.test(u))continue;assert.ok(fs.existsSync(path.join('site',decodeURIComponent(u.split('#')[0]))),u);}});
+test('every lesson download, code file and image exists',()=>{for(const lesson of Object.values(lessons))for(const html of Object.values(lesson))for(const m of html.matchAll(/(?:src|href)="([^"]+)"/g)){const u=m[1];if(/^(#|https?:)/.test(u))continue;const file=new URL(u,'https://course.test/index.html').pathname;assert.ok(fs.existsSync(path.join('site',decodeURIComponent(file))),u);}});
 test('two distinct source archives and eight real form captures',()=>{for(const s of ['mysql','postgresql']){assert.ok(fs.statSync(`site/downloads/polesie-${s}.zip`).size>100000);for(const p of ['login','customers','costs','users'])assert.ok(fs.statSync(`site/screenshots/${s}/${p}.png`).size>10000);}});
 test('practice and mock use source tasks, preserve different timer rules',()=>{const get=()=>null,set=()=>{};const training=ExamPractice.render({c,year:y,mode:'training',get,set});assert.match(training,/Моя тренировка/);assert.match(training,/20 минут/);const mock=ExamPractice.render({c,year:y,mode:'mock',get,set});assert.match(mock,/150 минут/);assert.doesNotMatch(mock,/id="practice-pause"/);assert.match(mock,/Перед началом/);});
 test('frozen sample assets and original source PDF exist',()=>{for(const t of y.practice.tasks){assert.ok(fs.existsSync('site/'+t.zip));for(const f of t.files)assert.ok(fs.existsSync('site/'+f.url));}assert.ok(fs.existsSync('site/'+y.source.url));});
+test('each source workbook has a local sheet preview and SQL guide contains complete source code',()=>{
+ const data={};vm.runInNewContext(fs.readFileSync('site/file-previews.js','utf8')+fs.readFileSync('site/program-data.js','utf8'),data);
+ for(const file of y.practice.tasks.flatMap(t=>t.files).filter(f=>f.url.endsWith('.xlsx'))){
+  const preview=data.FILE_PREVIEWS[decodeURIComponent(file.url)];assert.ok(preview?.sheets.length,file.url);
+  for(const sheet of preview.sheets){assert.ok(sheet.name);assert.match(sheet.html,/<table/);assert.match(sheet.html,/title="[A-Z]+[0-9]+"/);}
+ }
+ for(const step of data.PROGRAM_GUIDES.sql.steps.filter(s=>s.codeFile))assert.equal(step.code,fs.readFileSync(step.codeFile,'utf8'));
+ const dump=fs.readFileSync('site/downloads/polesie-mysql-database.sql','utf8');assert.match(dump,/PROCEDURE.*calculate_order_material_costs/);assert.doesNotMatch(dump,/DEFINER=/);
+});
 test('program walkthroughs have usable steps, existing screenshots and working local resources',()=>{
  const guides=JSON.parse(fs.readFileSync('content/program-guides.json','utf8'));
  for(const guide of Object.values(guides))for(const step of guide.steps){

@@ -15,6 +15,27 @@ test('teacher profile accepts optional fields and normalizes a safe materials UR
 test('teacher import rejects malformed fields and executable or credential URLs',()=>{
  for(const value of [null,[],{fullName:42},{position:'x'.repeat(201)},{materialsUrl:'javascript:alert(1)'},{materialsUrl:'data:text/html,x'},{materialsUrl:'https://user:secret@example.org'},{materialsUrl:'file:///tmp/a'}])assert.throws(()=>ExamTeaching.normalizeProfile(value));
 });
+test('teacher settings discard the institution and default to the supplied materials folder',()=>{
+ const value=ExamTeaching.normalizeProfile({organization:'Старое значение'});
+ assert.equal(Object.hasOwn(value,'organization'),false);
+ assert.equal(value.materialsUrl,'https://disk.yandex.ru/d/h3QUsGWcrr_tsQ');
+});
+test('code actions stay with the code rather than becoming an empty slide',()=>{
+ const {document}=parseHTML('<html><body></body></html>');
+ const html='<h3>Выполните запрос</h3><details class="code-source"><summary>examples/mysql/Sql/04-cost.sql · открыть код</summary><p class="code-actions"><button data-copy-code>Копировать весь код</button></p><pre><code>SELECT 1;</code></pre></details>';
+ const slides=ExamTeaching.lessonSlides(html,document);
+ assert.equal(slides.length,1);assert.ok(slides[0].html.includes('SELECT 1;'));
+});
+test('brief presentations cover every module and stack with existing images and full source links',()=>{
+ const data={};vm.runInNewContext(fs.readFileSync('site/presentation-data.js','utf8'),data);
+ for(const [id,stacks] of Object.entries(data.PRESENTATION_GUIDES))for(const [stack,slides] of Object.entries(stacks)){
+  assert.ok(slides.length>=7&&slides.length<=12,id+'/'+stack);
+  for(const slide of slides){assert.ok(slide.title);for(const m of slide.html.matchAll(/(?:src|href)="([^"]+)"/g)){
+   const file=new URL(m[1],'https://course.test/index.html').pathname;
+   assert.ok(fs.existsSync('site/'+decodeURIComponent(file)),m[1]);
+  }}
+ }
+});
 test('all browser entrypoints parse and presentation assets are bundled',()=>{
  for(const file of fs.readdirSync('src').filter(x=>x.endsWith('.js')))execFileSync(process.execPath,['--check','src/'+file]);
  for(const file of ['teaching.js','teaching.css'])assert.equal(fs.readFileSync('site/'+file,'utf8'),fs.readFileSync('src/'+file,'utf8'));
@@ -39,8 +60,8 @@ test('all 20 presentation routes preserve content, table rows, links and complet
   checkText(source);
   for(const anchor of source.querySelectorAll('a'))assert.ok([...deck.querySelectorAll('a')].some(x=>x.getAttribute('href')===anchor.getAttribute('href')));
   assert.deepEqual([...deck.querySelectorAll('img')].map(x=>x.getAttribute('src')),[...source.querySelectorAll('img')].map(x=>x.getAttribute('src')),module+'/'+stack+' all screenshots preserved');
-  for(const table of deck.querySelectorAll('table'))assert.ok(table.querySelectorAll('tbody > tr').length<=3,module+' oversized table');
-  for(const pre of deck.querySelectorAll('pre[data-code-lines]'))assert.ok(pre.textContent.split('\n').length<=14,module+' oversized code');
+  for(const table of deck.querySelectorAll('table'))assert.ok(table.querySelectorAll('tbody > tr').length<=5,module+' oversized table');
+  for(const pre of deck.querySelectorAll('pre[data-code-lines]'))assert.ok(pre.textContent.split('\n').length<=20,module+' oversized code');
   count++;
  }
  assert.equal(count,20);

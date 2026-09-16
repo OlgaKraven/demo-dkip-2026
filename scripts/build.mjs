@@ -11,10 +11,28 @@ process.chdir(root);
 const E=ExamCore.escape;
 const out='site';
 const write=(p,s)=>{fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,s);};
-for(const f of ['er-guide.js','er-guide.css','product-tour.js','student-ui.css','study-steps.js','programs.js'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
+for(const f of ['er-guide.js','er-guide.css','product-tour.js','student-ui.css','study-steps.js','programs.js','resource-viewer.js','resources.css'])write(path.join(out,f),fs.readFileSync(path.join('src',f)));
 const erData=buildErGuide();erData.layouts=await buildErLayouts(erData);
 write(path.join(out,'er-data.js'),'globalThis.ER_GUIDE='+JSON.stringify(erData)+';\n');
-write(path.join(out,'program-data.js'),'globalThis.PROGRAM_GUIDES='+fs.readFileSync('content/program-guides.json','utf8')+';');
+const programGuides=JSON.parse(fs.readFileSync('content/program-guides.json','utf8'));for(const guide of Object.values(programGuides))for(const step of guide.steps)if(step.codeFile)step.code=fs.readFileSync(step.codeFile,'utf8');
+write(path.join(out,'program-data.js'),'globalThis.PROGRAM_GUIDES='+JSON.stringify(programGuides)+';');
+write(path.join(out,'file-previews.js'),'globalThis.FILE_PREVIEWS='+fs.readFileSync('content/file-previews.json','utf8')+';');
+const presentationGuides=JSON.parse(fs.readFileSync('content/presentation-guides.json','utf8')),presentations={};
+for(const [module,items] of Object.entries(presentationGuides)){
+ presentations[module]={};
+ for(const stack of ['mysql','postgresql'])presentations[module][stack]=items.filter(x=>!x.stackOnly||x.stackOnly===stack).map(raw=>{
+  const item=JSON.parse(JSON.stringify(raw).replaceAll('{{stack}}',stack).replaceAll('{{dbGuide}}',stack==='mysql'?'phpmyadmin':'postgresql'));
+  let html=(item.points?'<ul>'+item.points.map(p=>'<li>'+E(p)+'</li>').join('')+'</ul>':'');
+  if(item.image)html+='<figure class="app-shot"><img src="'+E(item.image)+'" alt="'+E(item.title)+'"><figcaption>'+E(item.caption)+'</figcaption></figure>';
+  if(item.file){const lines=fs.readFileSync(item.file,'utf8').replaceAll('\r\n','\n').split('\n');html+='<pre data-code-file="'+E(item.file)+'" data-code-lines="1–'+Math.min(17,lines.length)+'"><code>'+E(lines.slice(0,17).join('\n'))+'</code></pre>';}
+  if(item.resource)html+='<p><a class="btn" href="'+E(item.resource.url)+'">'+E(item.resource.title)+'</a></p>';
+  return {title:item.title,html};
+ });
+}
+write(path.join(out,'presentation-data.js'),'globalThis.PRESENTATION_GUIDES='+JSON.stringify(presentations)+';');
+const dbFiles={'База.sql':fs.readFileSync('materials/database/polesie-mysql.sql'),'05-cost-procedure.sql':fs.readFileSync('examples/mysql/Sql/05-cost-procedure.sql'),'README.txt':Buffer.from('Создайте новую пустую базу utf8mb4_bin. В phpMyAdmin выберите её и импортируйте База.sql. Затем выполните CALL calculate_order_material_costs(); Ожидаемые суммы: 371.00; 126.45; 183.95. База.sql уже содержит учебные данные и сохранённую процедуру. Отдельный 05-cost-procedure.sql нужен только для создания процедуры в вашей собственной базе.\n')};
+write(path.join(out,'downloads/polesie-mysql-database.zip'),ExamCore.zip(dbFiles));
+write(path.join(out,'downloads/polesie-mysql-database.sql'),dbFiles['База.sql']);
 const c=JSON.parse(fs.readFileSync('content/is.json','utf8'));
 c.id='demo-dkip-2026-is';c.templateVersion='1.0.0';c.years=c.years.filter(y=>y.year===2026);
 const y=c.years[0];delete y.exercise;y.status='passport';y.contentVersion='polesie-2026-1';
@@ -42,7 +60,7 @@ for(const [folder,compiled,headings,prefix] of [['',lessons,toc,'lesson'],['exam
     const file=f.startsWith('stack/')?f.replace('stack/',`examples/${stack}/`):f;
     const code=fs.readFileSync(file,'utf8');
     write(path.join(out,'code',file+'.txt'),code);
-    return `<details class="code-source"><summary>${E(file)} · ${code.split('\n').length} строк · открыть код</summary><p><a href="code/${file}.txt" download>Скачать файл как текст</a></p><pre><code>${E(code)}</code></pre></details>`;
+    return `<details class="code-source"><summary>${E(file)} · ${code.split('\n').length} строк · открыть код</summary><p class="code-actions"><button class="btn" data-copy-code>Копировать весь код</button> <a class="btn" href="code/${file}.txt" download>Скачать файл как текст</a></p><pre><code>${E(code)}</code></pre></details>`;
    });
   compiled[m.id][stack]=content;
  }
@@ -63,6 +81,8 @@ for(const stack of ['mysql','postgresql']){
 const csv='\uFEFFДействие;Ожидаемый результат;Фактический результат\r\nВерные данные и пазл;Успешный вход;\r\nТри ошибки подряд;Блокировка;\r\nРазблокировка;Счётчик 0 и вход разрешён;\r\nПовторный логин;Сообщение о дубле;\r\nПовторный импорт;6 заказчиков без дублей;\r\nЗаказ 1;371,00;\r\nЗаказ 2;126,45;\r\nЗаказ 3;183,95;\r\n';
 write(path.join(out,'downloads/test-cases.csv'),csv);
 function tree(dir,files){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(['bin','obj'].includes(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())tree(p,files);else if(!e.name.endsWith('.local.txt'))files[p.replaceAll('\\','/')]=fs.readFileSync(p);}}
+const firstFormFiles={};tree('examples/first-form',firstFormFiles);
+write(path.join(out,'downloads/polesie-first-form.zip'),ExamCore.zip(Object.fromEntries(Object.entries(firstFormFiles).map(([p,v])=>[p.replace('examples/first-form/',''),v]))));
 for(const stack of ['mysql','postgresql']){
  const files={};tree('examples/shared',files);tree('examples/'+stack,files);
  files['README.md']=fs.readFileSync('examples/README.md');
