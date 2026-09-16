@@ -2,7 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {buildErGuide} from '../scripts/er-guide.mjs';
+import '../src/product-tour.js';
 const data=buildErGuide();
+test('tour places the coach next to its target and keeps it on screen',()=>{
+ const desktop=ExamProductTour.placement({left:100,right:400,top:180,bottom:230},390,250,1440,900);
+ assert.equal(desktop.left,416);assert.equal(desktop.top,180);
+ const mobile=ExamProductTour.placement({left:16,right:374,top:100,bottom:200},358,260,390,844);
+ assert.equal(mobile.top,216);assert.ok(mobile.left>=12&&mobile.left+358<=390);
+ const above=ExamProductTour.placement({left:16,right:374,top:600,bottom:680},358,260,390,844);
+ assert.equal(above.side,'above');assert.equal(above.top+260,584);
+});
 test('all SQL fields have provenance and all FK endpoints exist in both stacks',()=>{
  for(const schema of Object.values(data.stacks)){
  assert.equal(schema.tables.length,11);
